@@ -37,7 +37,7 @@ export default function RegistroForm() {
       }
       const datos = cuerpo.datos
       guardarSesion(datos)
-      navegar(datos.rutaInicio || '/campanas', { replace: true })
+      navegar('/dashboard', { replace: true })
     } catch (error) {
       setToast({
         visible: true,

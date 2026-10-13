@@ -37,7 +37,7 @@ export default function LoginForm() {
 
       const datos = cuerpo.datos
       guardarSesion(datos)
-      navegar(datos.rutaInicio || '/campanas', { replace: true })
+      navegar('/dashboard', { replace: true })
     } catch (errorPeticion) {
       setError(errorPeticion instanceof Error ? errorPeticion.message : 'No se pudo iniciar sesión.')
     } finally {
@@ -47,11 +47,20 @@ export default function LoginForm() {
 
   return (
     <form onSubmit={iniciarSesion}>
-      <Input type="email" required value={correo} onChange={(evento) => setCorreo(evento.target.value)}
-        label="INGRESE CORREO" Icono={Email} placeholder="Ingrese su correo..." />
-      <Input type="password" required value={contrasena} onChange={(evento) => setContrasena(evento.target.value)}
-        label="INGRESE CONTRASEÑA" Icono={PrivateOutline} placeholder="***************" />
+      <Input type="email"
+             required value={correo}
+             onChange={(evento) => setCorreo(evento.target.value)}
+             label="INGRESE CORREO"
+             Icono={Email} placeholder="Ingrese su correo..." />
+
+      <Input
+          type="password"
+          required
+          value={contrasena}
+          onChange={(evento) => setContrasena(evento.target.value)}
+          label="INGRESE CONTRASEÑA" Icono={PrivateOutline} placeholder="***************" />
       {error && <p role="alert" className="mt-3 text-sm text-red-400">{error}</p>}
+
       <button type="submit" disabled={cargando}
         className="bg-white rounded-md text-gray-500 font-loxend px-2 py-2 w-full mt-4 font-medium hover:bg-gray-300 disabled:opacity-50">
         {cargando ? 'Iniciando sesión...' : 'INGRESAR'}

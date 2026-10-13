@@ -20,9 +20,10 @@ const PantallaLogin = () => {
     return (
         <div className="w-full h-screen relative flex justify-between items-center bg-black">
 
-            <div className={"bg-green-600 w-[50%] lg:w-[70%] h-screen"}>
-                <Spline scene="https://prod.spline.design/OqA4aJs2JGF-rfcB/scene.splinecode" />
-
+            <div className="relative h-screen w-[50%] overflow-hidden bg-black lg:w-[70%]">
+                <div className="absolute inset-x-0 top-0 h-[calc(100%+110px)]">
+                    <Spline scene="https://prod.spline.design/OqA4aJs2JGF-rfcB/scene.splinecode" />
+                </div>
             </div>
 
             <div className={"w-[50%] lg:w-[30%] bg-black flex justify-center items-center"}>

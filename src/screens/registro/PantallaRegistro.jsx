@@ -41,7 +41,7 @@ const PantallaRegistro = () => {
         throw new Error(cuerpo.error?.mensaje || cuerpo.mensaje || `Error HTTP ${respuesta.status}`)
       }
       guardarSesion(cuerpo.datos)
-      navegar(cuerpo.datos.rutaInicio || '/campanas', { replace: true })
+      navegar('/dashboard', { replace: true })
     } catch (errorPeticion) {
       setError(errorPeticion instanceof Error ? errorPeticion.message : 'No se pudo registrar la cuenta.')
     } finally {
