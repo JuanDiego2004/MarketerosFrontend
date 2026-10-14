@@ -1,5 +1,5 @@
-import PantallaModulo from '../componentes/PantallaModulo'
+import PantallaAdministracion from '../administrador/PantallaAdministracion'
 
 export default function RegistroMetricasAnalista() {
-  return <PantallaModulo titulo="Registro de métricas" descripcion="Registra información e indicadores de campañas." />
+  return <PantallaAdministracion apiBase="/api/analista" />
 }

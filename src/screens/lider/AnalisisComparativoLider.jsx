@@ -1,5 +1,5 @@
-import PantallaModulo from '../componentes/PantallaModulo'
+import PantallaAdministracion from '../administrador/PantallaAdministracion'
 
 export default function AnalisisComparativoLider() {
-  return <PantallaModulo titulo="Análisis comparativo" descripcion="Compara campañas, periodos e indicadores." />
+  return <PantallaAdministracion apiBase="/api/lider" />
 }

@@ -10,6 +10,7 @@ import DashboardAdministrador from './screens/administrador/DashboardAdministrad
 import GestionUsuariosAdministrador from './screens/administrador/GestionUsuariosAdministrador'
 import RolesPermisosAdministrador from './screens/administrador/RolesPermisosAdministrador'
 import ClientesCanalesAdministrador from './screens/administrador/ClientesCanalesAdministrador'
+import PantallaAdministracion from './screens/administrador/PantallaAdministracion'
 
 import DashboardLider from './screens/lider/DashboardLider'
 import GestionCampanasLider from './screens/lider/GestionCampanasLider'
@@ -41,7 +42,7 @@ function obtenerGrupoRol(nombreRol = '') {
 
   if (rol.includes('admin')) return 'administrador'
 
-  if (rol.includes('project manager') || rol.includes('lider de marketing')) {
+  if (rol.includes('manager') || rol.includes('lider') || rol.includes('lead')) {
     return 'lider'
   }
 
@@ -97,7 +98,7 @@ function SinAcceso() {
 
 const TODOS = ['administrador', 'lider', 'analista']
 const ADMIN = ['administrador']
-const LIDER_Y_ANALISTA = ['lider', 'analista']
+const ADMIN_Y_LIDER_Y_ANALISTA = ['administrador', 'lider', 'analista']
 const ADMIN_Y_LIDER = ['administrador', 'lider']
 
 export default function App() {
@@ -159,8 +160,9 @@ export default function App() {
               <Route
                   path="/campanas"
                   element={
-                    <RutaPorRol gruposPermitidos={LIDER_Y_ANALISTA}>
+                    <RutaPorRol gruposPermitidos={ADMIN_Y_LIDER_Y_ANALISTA}>
                       <PaginaPorRol
+                          administrador={PantallaAdministracion}
                           lider={GestionCampanasLider}
                           analista={GestionCampanasAnalista}
                       />
@@ -171,8 +173,9 @@ export default function App() {
               <Route
                   path="/audiencias"
                   element={
-                    <RutaPorRol gruposPermitidos={LIDER_Y_ANALISTA}>
+                    <RutaPorRol gruposPermitidos={ADMIN_Y_LIDER_Y_ANALISTA}>
                       <PaginaPorRol
+                          administrador={PantallaAdministracion}
                           lider={GestionAudienciasLider}
                           analista={GestionAudienciasAnalista}
                       />
@@ -183,8 +186,8 @@ export default function App() {
               <Route
                   path="/metricas"
                   element={
-                    <RutaPorRol gruposPermitidos={['lider']}>
-                      <MetricasIndicadoresLider />
+                    <RutaPorRol gruposPermitidos={ADMIN_Y_LIDER_Y_ANALISTA}>
+                      <PaginaPorRol administrador={PantallaAdministracion} lider={MetricasIndicadoresLider} analista={RegistroMetricasAnalista} />
                     </RutaPorRol>
                   }
               />
@@ -193,7 +196,7 @@ export default function App() {
                   path="/metricas/registro"
                   element={
                     <RutaPorRol gruposPermitidos={['analista']}>
-                      <RegistroMetricasAnalista />
+                      <Navigate to="/metricas" replace />
                     </RutaPorRol>
                   }
               />
@@ -201,8 +204,9 @@ export default function App() {
               <Route
                   path="/analisis-comparativo"
                   element={
-                    <RutaPorRol gruposPermitidos={LIDER_Y_ANALISTA}>
+                    <RutaPorRol gruposPermitidos={ADMIN_Y_LIDER_Y_ANALISTA}>
                       <PaginaPorRol
+                          administrador={PantallaAdministracion}
                           lider={AnalisisComparativoLider}
                           analista={AnalisisComparativoAnalista}
                       />
@@ -213,8 +217,9 @@ export default function App() {
               <Route
                   path="/reportes"
                   element={
-                    <RutaPorRol gruposPermitidos={LIDER_Y_ANALISTA}>
+                    <RutaPorRol gruposPermitidos={ADMIN_Y_LIDER_Y_ANALISTA}>
                       <PaginaPorRol
+                          administrador={PantallaAdministracion}
                           lider={ReportesLider}
                           analista={ReportesAnalista}
                       />

@@ -4,7 +4,7 @@ import { Outlet } from 'react-router-dom'
 
 export default function LayoutPrivado() {
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-[url(/fondo6.jpeg)] bg-cover bg-center">
+    <div className="flex h-screen w-full overflow-hidden bg-gray-100 bg-cover bg-center">
       <Sidebar />
 
       <div className="flex min-w-0 flex-1 flex-col">

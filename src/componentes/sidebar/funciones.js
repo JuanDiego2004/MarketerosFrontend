@@ -15,10 +15,7 @@ export function obtenerModulos(nombreRol) {
         return modulosPorRol.administrador;
     }
 
-    if (
-        rol.includes('project manager') ||
-        rol.includes('lider de marketing')
-    ) {
+    if (rol.includes('manager') || rol.includes('lider') || rol.includes('lead')) {
         return modulosPorRol.projectManager;
     }
 

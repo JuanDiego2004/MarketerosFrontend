@@ -1,5 +1,5 @@
-import PantallaModulo from '../componentes/PantallaModulo'
+import PantallaAdministracion from '../administrador/PantallaAdministracion'
 
 export default function GestionAudienciasAnalista() {
-  return <PantallaModulo titulo="Gestión de audiencias" descripcion="Consulta y administra las audiencias de trabajo." />
+  return <PantallaAdministracion apiBase="/api/analista" />
 }

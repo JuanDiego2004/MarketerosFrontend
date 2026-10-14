@@ -1,5 +1,5 @@
-import PantallaModulo from '../componentes/PantallaModulo'
+import ClientesCanalesAdministrador from '../administrador/ClientesCanalesAdministrador'
 
 export default function ClientesCanalesLider() {
-  return <PantallaModulo titulo="Clientes y canales de difusión" descripcion="Consulta clientes y canales de difusión." />
+  return <ClientesCanalesAdministrador apiBase="/api/lider" />
 }

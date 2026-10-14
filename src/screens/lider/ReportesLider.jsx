@@ -1,5 +1,5 @@
-import PantallaModulo from '../componentes/PantallaModulo'
+import PantallaAdministracion from '../administrador/PantallaAdministracion'
 
 export default function ReportesLider() {
-  return <PantallaModulo titulo="Reportes y exportación" descripcion="Consulta y prepara reportes para exportar." />
+  return <PantallaAdministracion apiBase="/api/lider" />
 }

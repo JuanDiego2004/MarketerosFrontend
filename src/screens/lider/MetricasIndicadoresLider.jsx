@@ -1,5 +1,5 @@
-import PantallaModulo from '../componentes/PantallaModulo'
+import PantallaAdministracion from '../administrador/PantallaAdministracion'
 
 export default function MetricasIndicadoresLider() {
-  return <PantallaModulo titulo="Métricas e indicadores" descripcion="Consulta indicadores y resultados de marketing." />
+  return <PantallaAdministracion apiBase="/api/lider" />
 }

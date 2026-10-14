@@ -17,6 +17,11 @@ export default function TablaGlass({
   error: errorExterno = '',
   filasPorPagina = 8,
   accionesFila,
+  alCrear,
+  textoCrear = 'Nuevo registro',
+  claveId = 'id',
+  tituloTabla,
+  descripcionTabla,
   tituloVacio = 'Todavía no hay registros',
   descripcionVacia = 'Cuando haya información disponible aparecerá aquí.',
 }) {
@@ -29,20 +34,9 @@ export default function TablaGlass({
 
   useEffect(() => {
     let vigente = true
-    if (Array.isArray(datos)) {
-      setFilasCargadas(datos)
-      setErrorLocal('')
-      setCargandoLocal(false)
-      return () => { vigente = false }
-    }
-    if (typeof cargarDatos !== 'function') {
-      setFilasCargadas([])
-      setCargandoLocal(false)
-      return () => { vigente = false }
-    }
-    setCargandoLocal(true)
-    setErrorLocal('')
-    Promise.resolve().then(cargarDatos)
+    if (Array.isArray(datos) || typeof cargarDatos !== 'function') return () => { vigente = false }
+    Promise.resolve()
+      .then(() => { if (vigente) { setCargandoLocal(true); setErrorLocal('') }; return cargarDatos() })
       .then((respuesta) => { if (vigente) setFilasCargadas(extraerFilas(respuesta)) })
       .catch((errorCarga) => { if (vigente) setErrorLocal(errorCarga?.message || 'No se pudieron cargar los datos.') })
       .finally(() => { if (vigente) setCargandoLocal(false) })
@@ -63,12 +57,13 @@ export default function TablaGlass({
     }
   }
 
+  const filasFuente = Array.isArray(datos) ? datos : filasCargadas
   const filasFiltradas = useMemo(() => {
     const termino = busqueda.trim().toLocaleLowerCase()
     let resultado = termino
-      ? filasCargadas.filter((fila) => columnas.some((columna) =>
+      ? filasFuente.filter((fila) => columnas.some((columna) =>
           textoPlano(obtenerValor(fila, columna)).toLocaleLowerCase().includes(termino)))
-      : [...filasCargadas]
+      : [...filasFuente]
 
     if (orden.clave) {
       const columna = columnas.find((item) => (item.clave ?? item.accessorKey) === orden.clave)
@@ -86,13 +81,13 @@ export default function TablaGlass({
       }
     }
     return resultado
-  }, [filasCargadas, busqueda, columnas, orden])
+  }, [filasFuente, busqueda, columnas, orden])
 
   const totalPaginas = Math.max(1, Math.ceil(filasFiltradas.length / filasPorPagina))
   const paginaActual = Math.min(pagina, totalPaginas)
   const filasVisibles = filasFiltradas.slice((paginaActual - 1) * filasPorPagina, paginaActual * filasPorPagina)
-  const cargando = cargandoExterno || cargandoLocal
-  const error = errorExterno || errorLocal
+  const cargando = cargandoExterno || (!Array.isArray(datos) && cargandoLocal)
+  const error = errorExterno || (!Array.isArray(datos) && errorLocal)
   const primeraFila = filasFiltradas.length === 0 ? 0 : (paginaActual - 1) * filasPorPagina + 1
   const ultimaFila = Math.min(paginaActual * filasPorPagina, filasFiltradas.length)
 
@@ -107,8 +102,12 @@ export default function TablaGlass({
   }
 
   return (
-    <section className="w-full rounded-3xl border border-white/70 bg-black/25 p-3 shadow-[0_18px_60px_rgba(15,23,42,0.12)] ring-1 ring-slate-900/[0.03] backdrop-blur-md sm:p-5">
-      <div className="mb-4 flex items-center justify-between gap-3 px-1">
+    <section className="w-full rounded-2xl border border-slate-200 bg-white p-3 shadow-[0_8px_30px_rgba(15,23,42,0.045)] sm:p-5">
+      {(tituloTabla || descripcionTabla) && <div className="mb-4 px-1">
+        {tituloTabla && <h2 className="text-sm font-semibold text-slate-900">{tituloTabla}</h2>}
+        {descripcionTabla && <p className="mt-1 text-xs text-slate-500">{descripcionTabla}</p>}
+      </div>}
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3 px-1">
         <label className="flex h-11 w-full max-w-md items-center gap-3 rounded-2xl border border-slate-200/80 bg-white/70 px-3.5 text-slate-500 shadow-sm shadow-slate-900/[0.03] transition focus-within:border-emerald-300 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-400/10">
           <IconoBuscar />
           <input
@@ -117,9 +116,12 @@ export default function TablaGlass({
             onChange={(evento) => { setBusqueda(evento.target.value); setPagina(1) }}
             placeholder="Buscar en la tabla..."
             aria-label="Buscar registros"
-            className="min-w-0 flex-1 bg-transparent text-sm text-slate-00 outline-none placeholder:text-slate-400"
+            className="min-w-0 flex-1 bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400"
           />
         </label>
+        {alCrear && <button type="button" onClick={alCrear} className="inline-flex h-10 shrink-0 items-center gap-2 rounded-xl bg-slate-950 px-4 text-xs font-semibold text-white shadow-sm transition hover:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-slate-300/70">
+          <span className="text-base leading-none">+</span>{textoCrear}
+        </button>}
         {cargarDatos && (
           <button
             className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-slate-200/80 bg-white/70 text-slate-500 shadow-sm transition hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700 disabled:cursor-wait disabled:opacity-50"
@@ -134,16 +136,16 @@ export default function TablaGlass({
         )}
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-white/80 bg-white/45 shadow-inner shadow-slate-900/[0.025]">
+      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
         <div className="overflow-x-auto">
           <table className="min-w-full border-separate border-spacing-0 text-left">
-            <thead className="bg-slate-100/65">
+            <thead className="bg-slate-50">
               <tr>
                 {columnas.map((columna, indice) => {
                   const clave = columna.clave ?? columna.accessorKey ?? `columna-${indice}`
                   const ordenable = columna.ordenable !== false && Boolean(columna.clave ?? columna.accessorKey)
                   return (
-                    <th key={clave} className={`h-12 whitespace-nowrap border-b border-slate-200/70 px-4 text-[10px] font-bold uppercase tracking-[.13em] text-slate-500 sm:px-5 ${columna.encabezadoClassName || ''}`} style={{ width: columna.ancho }}>
+                    <th key={clave} className={`h-11 whitespace-nowrap border-b border-slate-200 px-4 text-[10px] font-bold uppercase tracking-[.12em] text-slate-500 sm:px-5 ${columna.encabezadoClassName || ''}`} style={{ width: columna.ancho }}>
                       <button type="button" className="inline-flex items-center gap-1.5 disabled:cursor-default" onClick={() => cambiarOrden(columna)} disabled={!ordenable}>
                         {columna.encabezado ?? columna.header ?? clave}
                         {ordenable && <IconoOrden direccion={orden.clave === clave ? orden.direccion : ''} />}
@@ -151,7 +153,7 @@ export default function TablaGlass({
                     </th>
                   )
                 })}
-                {accionesFila && <th className="h-12 whitespace-nowrap border-b border-slate-200/70 px-4 text-right text-[10px] font-bold uppercase tracking-[.13em] text-slate-500 sm:px-5">Acciones</th>}
+                {accionesFila && <th className="h-11 whitespace-nowrap border-b border-slate-200 px-4 text-right text-[10px] font-bold uppercase tracking-[.12em] text-slate-500 sm:px-5">Acciones</th>}
               </tr>
             </thead>
             <tbody>
@@ -170,15 +172,15 @@ export default function TablaGlass({
                   </div>
                 </td></tr>
               ) : filasVisibles.length > 0 ? filasVisibles.map((fila, indiceFila) => (
-                <tr className="group transition-colors hover:bg-emerald-50/55" key={fila.id ?? fila.idCliente ?? fila.idUsuario ?? `${paginaActual}-${indiceFila}`}>
+                <tr className="group transition-colors hover:bg-slate-50/90" key={fila[claveId] ?? fila.id ?? fila.idCliente ?? fila.idUsuario ?? `${paginaActual}-${indiceFila}`}>
                   {columnas.map((columna, indiceColumna) => {
                     const valor = obtenerValor(fila, columna)
                     const contenido = columna.render ? columna.render(valor, fila) : columna.tipo === 'estado'
                       ? <span className={`inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-[10px] font-semibold ring-1 ring-inset ${claseEstado(valor)}`}><span className="h-1.5 w-1.5 rounded-full bg-current" />{textoPlano(valor)}</span>
                       : <span className="inline-block max-w-[360px] overflow-hidden text-ellipsis align-middle whitespace-nowrap text-sm text-slate-700">{textoPlano(valor) || '—'}</span>
-                    return <td key={columna.clave ?? indiceColumna} className={`h-[58px] border-b border-slate-200/55 px-4 text-sm last:border-b-0 sm:px-5 ${columna.className || ''}`}>{contenido}</td>
+                    return <td key={columna.clave ?? indiceColumna} className={`h-[54px] border-b border-slate-100 px-4 text-sm last:border-b-0 sm:px-5 ${columna.className || ''}`}>{contenido}</td>
                   })}
-                  {accionesFila && <td className="h-[58px] border-b border-slate-200/55 px-4 text-right last:border-b-0 sm:px-5">{accionesFila(fila)}</td>}
+                  {accionesFila && <td className="h-[54px] border-b border-slate-100 px-4 text-right last:border-b-0 sm:px-5">{accionesFila(fila)}</td>}
                 </tr>
               )) : (
                 <tr><td colSpan={columnas.length + (accionesFila ? 1 : 0)}>

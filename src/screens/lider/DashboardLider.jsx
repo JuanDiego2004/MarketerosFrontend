@@ -1,5 +1,5 @@
-import PantallaModulo from '../componentes/PantallaModulo'
+import DashboardAdministrador from '../administrador/DashboardAdministrador'
 
 export default function DashboardLider() {
-  return <PantallaModulo titulo="Dashboard" descripcion="Resumen de planificación, supervisión y análisis de marketing." />
+  return <DashboardAdministrador apiBase="/api/lider" />
 }

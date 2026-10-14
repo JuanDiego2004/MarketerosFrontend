@@ -1,5 +1,5 @@
-import PantallaModulo from '../componentes/PantallaModulo'
+import PantallaAdministracion from '../administrador/PantallaAdministracion'
 
 export default function GestionAudienciasLider() {
-  return <PantallaModulo titulo="Gestión de audiencias" descripcion="Administra las audiencias de las campañas." />
+  return <PantallaAdministracion apiBase="/api/lider" />
 }

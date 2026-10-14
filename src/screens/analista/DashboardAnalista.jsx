@@ -1,5 +1,5 @@
-import PantallaModulo from '../componentes/PantallaModulo'
+import DashboardAdministrador from '../administrador/DashboardAdministrador'
 
 export default function DashboardAnalista() {
-  return <PantallaModulo titulo="Dashboard" descripcion="Resumen operativo de campañas, audiencias y métricas." />
+  return <DashboardAdministrador apiBase="/api/analista" />
 }

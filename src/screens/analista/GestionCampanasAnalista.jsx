@@ -1,5 +1,5 @@
-import PantallaModulo from '../componentes/PantallaModulo'
+import PantallaAdministracion from '../administrador/PantallaAdministracion'
 
 export default function GestionCampanasAnalista() {
-  return <PantallaModulo titulo="Gestión de campañas" descripcion="Consulta y opera las campañas asignadas." />
+  return <PantallaAdministracion apiBase="/api/analista" />
 }
