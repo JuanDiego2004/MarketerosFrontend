@@ -7,6 +7,24 @@
   max-width: 1440px;
   margin: auto;
 }
+.crm-demo-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr)); gap: .75rem; margin: 1rem 0; }
+.crm-demo-kpis .crm-panel { margin: 0; min-width: 0; }
+.crm-demo-kpis strong { display: block; font-size: 1.5rem; margin-top: .6rem; font-variant-numeric: tabular-nums; }
+.crm-demo-kpis .crm-acciones { font-size: .8rem; color: #475569; }
+.crm-demo-grafico { display: block; width: 100%; min-width: 520px; height: auto; max-height: 330px; }
+.crm-demo-grafico text { fill: #475569; font-size: 11px; }
+.crm-demo-rejilla { stroke: var(--crm-borde); stroke-dasharray: 4 4; }
+.crm-demo-linea { stroke: var(--crm-acento); stroke-width: 3; fill: none; }
+.crm-demo-punto { fill: var(--crm-acento); }
+.crm-demo-mapa { position: relative; width: 100%; aspect-ratio: 2; background: #f1f5f9; border: 1px solid var(--crm-borde); border-radius: .75rem; margin: 1rem 0; }
+.crm-demo-mapa svg { display: block; width: 100%; height: 100%; }
+.crm-demo-mapa path { fill: #cbd5e1; stroke: #94a3b8; stroke-width: .5; }
+.crm-demo-marcador { position: absolute; transform: translate(-50%, -50%); width: min(var(--demo-tamano), 6vw); height: min(var(--demo-tamano), 6vw); background: #1d4ed8aa; border: 2px solid white; border-radius: 50%; cursor: pointer; }
+.crm-demo-marcador:disabled { cursor: wait; opacity: .6; }
+.crm-demo-marcador:hover { background: var(--crm-acento); }
+.crm-demo-marcador:focus-visible { outline: 3px solid #0f172a; outline-offset: 2px; }
+.crm-demo-paises { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); gap: .5rem; }
+.crm-demo-paises .crm-boton { display: flex; justify-content: space-between; gap: .5rem; }
 .crm-cabecera {
   display: flex;
   align-items: flex-start;

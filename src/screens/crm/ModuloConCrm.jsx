@@ -1,12 +1,15 @@
+import { lazy, Suspense } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useAuth } from "../../contexto/ContextoAuth";
 import { obtenerGrupoRol, GRUPOS_ROL } from "../../utils/roles";
 import PanelCaptacion from "./PanelCaptacion";
 import PantallaOperaciones from "./PantallaOperaciones";
 import PantallaAtribucion from "./PantallaAtribucion";
+const PublicidadDemo = lazy(() => import("./PublicidadDemo"));
 export default function ModuloConCrm({ tipo, children }) {
   const [p, setP] = useSearchParams();
   const vista = p.get("crm");
+  const rendimiento = tipo === "metricas" && (!vista || vista === "rendimiento" || vista === "demo");
   const { usuario } = useAuth();
   const grupo = obtenerGrupoRol(usuario?.rol?.nombreRol || "");
   const permitir = tipo !== "campanas" || grupo !== GRUPOS_ROL.ANALISTA;
@@ -15,15 +18,15 @@ export default function ModuloConCrm({ tipo, children }) {
       <nav className="crm crm-acciones" aria-label="Secciones del módulo">
         <button
           className="crm-boton"
-          aria-pressed={!vista}
-          onClick={() => setP({})}
+          aria-pressed={!rendimiento && (!vista || vista === "registro")}
+          onClick={() => setP(tipo === "metricas" ? { crm: "registro" } : {})}
         >
-          Gestión actual
+          {tipo === "metricas" ? "Registro de métricas" : "Gestión actual"}
         </button>
         {permitir && (
           <button
             className="crm-boton"
-            aria-pressed={!!vista}
+            aria-pressed={vista === "nuevo"}
             onClick={() => setP({ crm: "nuevo" })}
           >
             {tipo === "campanas"
@@ -35,8 +38,9 @@ export default function ModuloConCrm({ tipo, children }) {
                   : "Embudo e ingresos"}
           </button>
         )}
+        {tipo === "metricas" && <button className="crm-boton" aria-pressed={rendimiento} onClick={() => setP({ crm: "rendimiento" })}>Rendimiento publicitario</button>}
       </nav>
-      {!vista || !permitir ? (
+      {rendimiento ? <Suspense fallback={<p className="crm" role="status">Cargando rendimiento publicitario…</p>}><PublicidadDemo/></Suspense> : !vista || vista === "registro" || !permitir ? (
         children
       ) : tipo === "campanas" ? (
         <PanelCaptacion />

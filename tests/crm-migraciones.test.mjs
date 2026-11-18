@@ -72,6 +72,8 @@ test("migraciones CRM, FK, deduplicación, permisos y reserva idempotente", asyn
     await db.exec(await readFile(new URL('../../backend_agencia/src/main/resources/sql/crm-v4.sql',import.meta.url),'utf8'));
     await db.exec(await readFile(new URL('../../backend_agencia/src/main/resources/sql/crm-v5.sql',import.meta.url),'utf8'));
     await db.exec(await readFile(new URL('../../backend_agencia/src/main/resources/sql/crm-v6.sql',import.meta.url),'utf8'));
+    await db.exec(await readFile(new URL('../../backend_agencia/src/main/resources/sql/crm-v7.sql',import.meta.url),'utf8'));
+    await db.exec(await readFile(new URL('../../backend_agencia/src/main/resources/sql/crm-v8.sql',import.meta.url),'utf8'));
     const roles = await db.query(
       `select r.nombre_rol,p.codigo from rol_permiso rp join rol r using(id_rol) join permiso p using(id_permiso)`,
     );
@@ -126,7 +128,7 @@ test("migraciones CRM, FK, deduplicación, permisos y reserva idempotente", asyn
           "select count(*)::int cantidad from pg_class where relname like 'crm_%' and relkind='r' and relrowsecurity",
         )
       ).rows[0].cantidad,
-      37,
+      40,
     );
     await db.exec("delete from crm_contacto where id=1");
     assert.equal(

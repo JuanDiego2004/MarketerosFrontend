@@ -1,6 +1,6 @@
 # WhatsApp en el CRM: recepción y entrega
 
-Actualizado: 17 de noviembre de 2026. Esta integración guarda respuestas de contactos y confirmaciones verificadas de Meta. Los envíos siguen saliendo de las automatizaciones existentes.
+Actualizado: 18 de noviembre de 2026. Esta integración guarda respuestas de contactos y confirmaciones verificadas de Meta. Los envíos siguen saliendo de las automatizaciones existentes.
 
 ## Configuración del backend
 
@@ -55,6 +55,14 @@ Esta separación y los mensajes específicos requieren desplegar la actualizaci�
 
 ## Dónde verlo
 
+### Enviar la plantilla de prueba desde el CRM
+
+Con el frontend y backend actualizados, abrir Marketing → Automatizaciones → Editor visual, añadir o seleccionar WhatsApp Cloud y pulsar **Usar hello_world de prueba**. Completa `hello_world`, `en_US` y parámetros vacíos. El backend acepta esta plantilla sin parámetros y envía el mismo formato del ejemplo de Meta, sin `components`; no hay que pegar un webhook ni un JSON en el campo de parámetros.
+
+Seleccionar un segmento que contenga solo el contacto de prueba autorizado en Meta, con teléfono internacional y consentimiento MARKETING / WHATSAPP. Guardar el flujo, activarlo y ejecutar mediante su confirmación. Revisar Últimas ejecuciones → Ver pasos. Se mantienen las bajas vigentes y la protección de duplicados. Cada contacto entra una vez por automatización; modificar el flujo no repite una ejecución anterior ni cambia su copia guardada. Si ya fue procesado, utilizar una automatización de prueba nueva para una nueva prueba deliberada.
+
+La excepción sin parámetros solo aplica a `hello_world` con `en_US`; otras plantillas mantienen el enlace de baja y los parámetros configurados. Una respuesta webhook con `statuses[].status=delivered` acredita entrega del ID de mensaje indicado, pero no configura los parámetros ni demuestra que ese envío saliera del CRM.
+
 - **Configuración → Integraciones → Recepción y entrega de WhatsApp**: administrador consulta mensajes y estados; ve la URL del webhook y la fecha del último evento guardado. «Credenciales configuradas» no certifica que la suscripción de Meta esté activa.
 - El filtro inicial muestra mensajes sin contacto. Desmarcarlo muestra todos los recibidos, con paginación de 20.
 - **Vincular contacto** permite asociar o corregir la asociación de un mensaje, con confirmación, auditoría y control de versión. No cambia otros mensajes ni concede consentimiento.
@@ -84,6 +92,8 @@ Aplicar mediante `scripts/PrepararCrm.java --aplicar` con el driver PostgreSQL y
 Reversión: quitar la suscripción/callback en Meta antes de volver a un backend anterior; mantener las tablas para conservar datos y volver a activar después sin duplicados. Detener las automatizaciones antes de revertir el código de envío.
 
 ## Comprobaciones
+
+La adaptación `hello_world` completó tres pruebas unitarias Java 25 y tres de integración PostgreSQL con rollback: valida nombre/idioma/parámetros, cuerpo sin `components`, bloqueo sin consentimiento, aceptación, estados y ausencia de reenvíos. HTTP y SMTP están simulados; no se enviaron mensajes reales. También pasaron el navegador Edge (botón, parámetros vacíos tras recarga, escritorio y móvil), las cinco pruebas CRM, el build y ESLint de EditorFlujos. Capturas: `crm-hello-world-escritorio.png` y `crm-hello-world-movil.png`. La auditoría estática adicional se interrumpió tras 20 segundos sin resultado; no se declara aprobada. La adaptación requiere desplegar tanto frontend como backend y no actualiza por sí sola una instancia en Render.
 
 Se verifican firma sobre bytes originales, desafío GET, límite de 3 MB, fallo cerrado sin secretos, número distinto ignorado, deduplicación, remitente sin teléfono, permisos y vinculación versionada sin consentimiento automático. Las pruebas simulan Meta y no envían comunicaciones reales. La activación contra Meta requiere el dominio y los secretos propios del usuario.
 

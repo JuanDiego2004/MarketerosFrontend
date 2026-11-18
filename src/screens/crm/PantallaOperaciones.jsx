@@ -6,7 +6,6 @@ import {
   Trash2,
   Search,
   X,
-  RefreshCw,
   Columns3,
   List,
   CalendarDays,
@@ -22,8 +21,7 @@ import { operaciones, etiquetas } from "./configuracionOperaciones";
 import "./Crm.css";
 import AlertasMetas from "./AlertasMetas";
 import CalendarioActividades from "./CalendarioActividades";
-import IntegracionesGoogle from "./IntegracionesGoogle";
-import MensajesWhatsApp from "./MensajesWhatsApp";
+import CanalesCrm from "./CanalesCrm";
 
 const fechaLocal = (v) =>
   v
@@ -49,6 +47,10 @@ const presentar = (v) =>
       : String(v);
 
 export default function PantallaOperaciones({ recurso }) {
+  return recurso === "integraciones" ? <CanalesCrm/> : <OperacionesGenerales recurso={recurso}/>;
+}
+
+function OperacionesGenerales({ recurso }) {
   const { token } = useAuth();
   const cfg = operaciones[recurso];
   const [params, setParams] = useSearchParams();
@@ -71,11 +73,6 @@ export default function PantallaOperaciones({ recurso }) {
   const [confirmacion, setConfirmacion] = useState(null);
   const [detalle, setDetalle] = useState(null);
   const [vencidas, setVencidas] = useState([]);
-  const [conexion, setConexion] = useState(null);
-  const [desde, setDesde] = useState(
-    new Date().toISOString().slice(0, 8) + "01",
-  );
-  const [hasta, setHasta] = useState(new Date().toISOString().slice(0, 10));
   const searchRef = useRef(null);
   const gestionar = cap[`${recurso}Gestionar`];
   const api = (ruta, args) => solicitarCrm(`/operaciones${ruta}`, token, args);
@@ -130,12 +127,6 @@ export default function PantallaOperaciones({ recurso }) {
     if (recurso === "actividades")
       solicitarCrm("/operaciones/notificaciones", token, { signal: c.signal })
         .then(setVencidas)
-        .catch(() => {});
-    if (recurso === "integraciones")
-      solicitarCrm("/operaciones/integraciones/estado", token, {
-        signal: c.signal,
-      })
-        .then(setConexion)
         .catch(() => {});
     return () => c.abort();
   }, [recurso, token, revision]);
@@ -332,25 +323,7 @@ export default function PantallaOperaciones({ recurso }) {
           </button>
         </>
       )}
-      {recurso === "integraciones" && (
-        <button
-          className="crm-boton"
-          disabled={ocupado}
-          onClick={() =>
-            actuar(
-              () =>
-                api(
-                  `/integraciones/${f.id}/sincronizar?desde=${desde}&hasta=${hasta}`,
-                  { method: "POST" },
-                ),
-              "Métricas sincronizadas desde Meta Ads",
-            )
-          }
-        >
-          <RefreshCw size={15} />
-          Sincronizar
-        </button>
-      )}
+
     </div>
   );
   const filas = datos?.filas || [];
@@ -434,58 +407,6 @@ export default function PantallaOperaciones({ recurso }) {
           )}
         </>
       )}
-      {conexion && recurso === "integraciones" && (
-        <div className="crm-panel">
-          <p>
-            Meta Ads:{" "}
-            {conexion.metaConfigurada
-              ? "Token configurado"
-              : "Falta CRM_META_TOKEN"}{" "}
-            · SMTP:{" "}
-            {conexion.smtpConfigurado
-              ? "Configurado"
-              : "Pendiente de configurar"}
-          </p>
-          <p className="crm-ayuda">
-            Baja pública:{" "}
-            {conexion.bajaPublicaConfigurada
-              ? "configurada"
-              : "pendiente de configurar con la dirección HTTPS pública"}
-            . Los emails requieren un enlace de baja funcional.
-          </p>
-          <p className="crm-ayuda">
-            Ejecución automática:{" "}
-            {conexion.automatizacionesProgramadas
-              ? "habilitada"
-              : "deshabilitada"}
-            . Importación de gasto diario, clics e impresiones; sincronizar de
-            nuevo actualiza los mismos días.
-          </p>
-          <p className="crm-ayuda">WhatsApp Cloud: {conexion.whatsappConfigurado ? "configurado" : "pendiente de configurar"} · Twilio SMS: {conexion.smsConfigurado ? "configurado" : "pendiente de configurar"}. Los pasos de mensajería se configuran en el editor visual de automatizaciones y requieren consentimiento del canal.</p>
-        </div>
-      )}
-      {recurso === "integraciones" && (
-        <div className="crm-filtros">
-          <label className="crm-campo">
-            Desde
-            <input
-              type="date"
-              value={desde}
-              onChange={(e) => setDesde(e.target.value)}
-            />
-          </label>
-          <label className="crm-campo">
-            Hasta
-            <input
-              type="date"
-              value={hasta}
-              onChange={(e) => setHasta(e.target.value)}
-            />
-          </label>
-        </div>
-      )}
-      {recurso === "integraciones" && <IntegracionesGoogle campanas={opciones.campanas} desde={desde} hasta={hasta} gestionar={gestionar} />}
-      {recurso === "integraciones" && <MensajesWhatsApp contactos={opciones.contactos} gestionar={gestionar} />}
       {error && !form && (
         <div className="crm-error" role="alert">
           {error}
