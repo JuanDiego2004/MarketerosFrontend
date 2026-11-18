@@ -1,5 +1,5 @@
-import PantallaAdministracion from '../administrador/PantallaAdministracion'
+import PantallaAdministracion from "../administrador/PantallaAdministracion";
 
 export default function AnalisisComparativoAnalista() {
-  return <PantallaAdministracion apiBase="/api/analista" />
+  return <PantallaAdministracion apiBase="/api/analista" />;
 }

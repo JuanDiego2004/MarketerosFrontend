@@ -1,5 +1,5 @@
-import PantallaUsuarios from '../usuarios/PantallaUsuarios'
+import PantallaUsuarios from "./PantallaUsuarios.jsx";
 
 export default function GestionUsuariosAdministrador() {
-  return <PantallaUsuarios />
+  return <PantallaUsuarios />;
 }

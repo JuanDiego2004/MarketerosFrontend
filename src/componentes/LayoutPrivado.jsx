@@ -1,6 +1,6 @@
-import Header from './header.jsx'
-import Sidebar from './sidebar/Sidebar.jsx'
-import { Outlet } from 'react-router-dom'
+import Header from "./header.jsx";
+import Sidebar from "./sidebar/Sidebar.jsx";
+import { Outlet } from "react-router-dom";
 
 export default function LayoutPrivado() {
   return (
@@ -14,5 +14,5 @@ export default function LayoutPrivado() {
         </main>
       </div>
     </div>
-  )
+  );
 }

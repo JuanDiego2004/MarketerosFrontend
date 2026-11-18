@@ -1,8 +1,8 @@
-import { useAuth } from '../contexto/ContextoAuth'
-import { Navigate } from 'react-router-dom'
+import { useAuth } from "../contexto/ContextoAuth";
+import { Navigate } from "react-router-dom";
 
 const RutaProtegida = ({ children }) => {
-  const { usuario, cargando } = useAuth()
+  const { usuario, cargando } = useAuth();
 
   if (cargando) {
     return (
@@ -12,10 +12,10 @@ const RutaProtegida = ({ children }) => {
           <p className="text-sm opacity-60">Verificando sesión...</p>
         </div>
       </div>
-    )
+    );
   }
 
-  return usuario ? children : <Navigate to="/login" replace />
-}
+  return usuario ? children : <Navigate to="/login" replace />;
+};
 
-export default RutaProtegida
+export default RutaProtegida;

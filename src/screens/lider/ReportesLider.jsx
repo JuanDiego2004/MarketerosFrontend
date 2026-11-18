@@ -1,5 +1,5 @@
-import PantallaAdministracion from '../administrador/PantallaAdministracion'
+import PantallaAdministracion from "../administrador/PantallaAdministracion";
 
 export default function ReportesLider() {
-  return <PantallaAdministracion apiBase="/api/lider" />
+  return <PantallaAdministracion apiBase="/api/lider" />;
 }
