@@ -25,6 +25,73 @@ async function solicitar(ruta, token, opciones = {}) {
 
 export const obtenerDashboardAdministrador = (token, apiBase = "/api/admin") =>
   solicitar(`${apiBase}/dashboard`, token);
+
+export const obtenerMarketingDashboard = (
+  token,
+  apiBase,
+  desde,
+  hasta,
+  signal,
+) =>
+  solicitar(
+    `${apiBase}/dashboard/marketing?${new URLSearchParams({ desde, hasta })}`,
+    token,
+    { signal },
+  );
+
+export const obtenerDetalleDashboard = (
+  token,
+  apiBase,
+  campana,
+  desde,
+  hasta,
+  signal,
+) =>
+  solicitar(
+    `${apiBase}/dashboard/marketing/campanas/${campana}/geografia?${new URLSearchParams({ desde, hasta })}`,
+    token,
+    { signal },
+  );
+
+export const guardarCoberturaDashboard = (token, apiBase, campana, datos) =>
+  solicitar(
+    `${apiBase}/dashboard/marketing/campanas/${campana}/ubicaciones`,
+    token,
+    {
+      method: "POST",
+      body: JSON.stringify(datos),
+    },
+  );
+
+export const quitarCoberturaDashboard = (token, apiBase, campana, ubicacion) =>
+  solicitar(
+    `${apiBase}/dashboard/marketing/campanas/${campana}/ubicaciones/${ubicacion}`,
+    token,
+    { method: "DELETE" },
+  );
+
+export const guardarResultadoDashboard = (
+  token,
+  apiBase,
+  metrica,
+  ubicacion,
+  datos,
+) =>
+  solicitar(
+    `${apiBase}/dashboard/marketing/metricas/${metrica}/ubicaciones/${ubicacion}`,
+    token,
+    {
+      method: "PUT",
+      body: JSON.stringify(datos),
+    },
+  );
+
+export const quitarResultadoDashboard = (token, apiBase, metrica, ubicacion) =>
+  solicitar(
+    `${apiBase}/dashboard/marketing/metricas/${metrica}/ubicaciones/${ubicacion}`,
+    token,
+    { method: "DELETE" },
+  );
 export const listarModuloAdministrador = (
   modulo,
   token,
