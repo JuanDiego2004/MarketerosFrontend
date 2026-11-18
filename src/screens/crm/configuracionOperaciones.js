@@ -181,19 +181,10 @@ export const operaciones = {
     columnas: ["nombre", "segmento_id", "accion", "activa"],
   },
   integraciones: {
-    titulo: "Integraciones y canales",
-    descripcion:
-      "Conecta campañas de Meta, Google Ads y Analytics; configura los canales de comunicación desde el backend.",
-    campos: [
-      nombre,
-      campana,
-      campo("campana_externa", "ID de campaña Meta", "text", {
-        requerido: true,
-        maxLength: 120,
-        pattern: "[0-9]+",
-      }),
-    ],
-    columnas: ["nombre", "campana_id", "campana_externa"],
+    titulo: "Canales de comunicación",
+    descripcion: "Gestiona la comunicación y consulta la fuente de rendimiento publicitario.",
+    campos: [],
+    columnas: [],
   },
   auditoria: {
     titulo: "Auditoría de cambios",

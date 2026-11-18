@@ -1,0 +1,12 @@
+{
+  "estado": "sin_resultado",
+  "limiteSegundos": 20,
+  "comando": [
+    "python",
+    "C:/Users/User/.codex/plugins/cache/openai-curated-remote/frontend-design-premium/1.4.0/skills/frontend-design-premium/scripts/audit_project.py",
+    "C:\\Users\\User\\Universidad\\DESARROLLO_WEB_INTEGRAO\\MarketingSystem",
+    "--mode",
+    "strict"
+  ],
+  "detalle": "El proceso no completó; no constituye auditoría aprobada."
+}

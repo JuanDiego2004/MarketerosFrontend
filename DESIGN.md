@@ -74,6 +74,8 @@ Dashboard es un enlace directo. Clientes, Campañas, Resultados y Configuración
 
 Lucide React identifica grupos y acciones con trazo uniforme (1,75 para grupos, tamaños de 16–22 px). El rail se expande en 0,3 s al entrar con mouse o foco y respeta movimiento reducido. CRM reúne Contactos, Cuentas, Pipeline y Actividades; el analista ve Contactos y sus Actividades. Marketing incorpora Contenido y Automatizaciones; Resultados añade Atribución y Metas. `src/screens/crm/Crm.css` es el dueño de los estilos CRM y mantiene la paleta existente; el acento de acción es azul #1D4ED8. Los diálogos CRM son elementos `<dialog>` modales del producto, con foco confinado por el navegador y restaurado al cierre. El tablero y calendario desplazan sus columnas horizontalmente sin ensanchar la página. Las notificaciones del header muestran tareas reales del usuario.
 
+Rendimiento publicitario reutiliza tarjetas, filtros y diálogos CRM, con iconos Lucide y la insignia «Fuente: Mockaroo». El lenguaje visible es de producto; inversión, ventas atribuidas y métricas tienen bloques y alcances explícitos. Gastos adicionales reutiliza DialogoCrm y controles nativos. `Crm.css` es dueño de `.crm-demo-*`: acento azul y grises existentes para el mapa, círculos proporcionales y gráfico de líneas. La geometría mundial local se conserva en `src/assets/world-land.json` (Natural Earth, dominio público). No depende de un servicio de teselas externo. El gráfico y su tabla conservan lectura mediante scroll interno en móvil.
+
 ## Do's and Don'ts
 
 - Mantener visibles la ruta activa y el foco de teclado.

@@ -6,15 +6,23 @@ export async function solicitarCrm(
   { method = "GET", body, signal, archivo = false } = {},
 ) {
   const multipart = body instanceof FormData;
-  const respuesta = await fetch(`${base}${ruta}`, {
-    method,
-    signal,
-    headers: {
-      Authorization: `Bearer ${token}`,
-      ...(!multipart && body ? { "Content-Type": "application/json" } : {}),
-    },
-    body: body ? (multipart ? body : JSON.stringify(body)) : undefined,
-  });
+  let respuesta;
+  try {
+    respuesta = await fetch(`${base}${ruta}`, {
+      method,
+      signal,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        ...(!multipart && body ? { "Content-Type": "application/json" } : {}),
+      },
+      body: body ? (multipart ? body : JSON.stringify(body)) : undefined,
+    });
+  } catch (error) {
+    if (signal?.aborted || error.name === "AbortError") throw error;
+    if (error instanceof TypeError)
+      throw new Error("No se pudo conectar con el backend. Revisa la conexión y si el navegador o una extensión está bloqueando la solicitud.", { cause: error });
+    throw error;
+  }
   if (!respuesta.ok) {
     const error = await respuesta.json().catch(() => ({}));
     throw new Error(

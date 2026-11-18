@@ -281,7 +281,7 @@ test("pantallas, CRUD, conflicto, teclado, móvil y restricciones de navegación
       ["/actividades", "Actividades y tareas"],
       ["/contenido", "Contenido y aprobaciones"],
       ["/automatizaciones", "Automatizaciones"],
-      ["/integraciones", "Integraciones y canales"],
+      ["/integraciones", "Canales de comunicación"],
       ["/atribucion", "Atribución y embudo"],
       ["/auditoria", "Auditoría de cambios"],
       ["/metas", "Metas por campaña"],
@@ -392,6 +392,29 @@ test("pantallas, CRUD, conflicto, teclado, móvil y restricciones de navegación
     await page.getByRole("button",{name:"Guardar flujo",exact:true}).first().click();
     await page.getByText("Flujo guardado.",{exact:false}).waitFor();
     assert.equal(flujo.definicion.nodos.at(-1).tipo,"SMS");
+    await page.getByLabel("Añadir paso").selectOption("WHATSAPP");
+    await page.getByRole("button",{name:"Añadir",exact:true}).click();
+    await page.getByRole("button",{name:"Usar plantilla hello_world",exact:true}).click();
+    assert.equal(await page.getByLabel("Plantilla aprobada de Meta").inputValue(),"hello_world");
+    assert.equal(await page.getByLabel("Idioma de la plantilla").inputValue(),"en_US");
+    assert.equal(await page.getByLabel("Parámetros del cuerpo, uno por línea").count(),0);
+    await page.getByLabel("Idioma de la plantilla").fill("es");
+    await page.getByLabel("Parámetros del cuerpo, uno por línea").fill("{{nombre}}\n{{baja}}");
+    await page.getByRole("button",{name:"Usar plantilla hello_world",exact:true}).click();
+    await page.getByRole("button",{name:"Guardar flujo",exact:true}).first().click();
+    await page.getByText("Flujo guardado.",{exact:false}).waitFor();
+    assert.deepEqual(flujo.definicion.nodos.at(-1).parametros,{plantilla:"hello_world",idioma:"en_US",parametros:""});
+    await page.reload();
+    await page.locator(".crm-flujo-nodo").filter({hasText:"WhatsApp Cloud"}).click();
+    await page.getByRole("status").filter({hasText:"La plantilla hello_world"}).waitFor();
+    assert.equal(await page.getByLabel("Parámetros del cuerpo, uno por línea").count(),0);
+    await page.getByLabel("Plantilla aprobada de Meta").scrollIntoViewIfNeeded();
+    await page.screenshot({path:"docs/crm-hello-world-escritorio.png",fullPage:true});
+    await page.setViewportSize({width:390,height:844});
+    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth),true);
+    await page.getByRole("status").filter({hasText:"La plantilla hello_world"}).scrollIntoViewIfNeeded();
+    await page.screenshot({path:"docs/crm-hello-world-movil.png",fullPage:true});
+    await page.setViewportSize({width:1440,height:900});
     await page.getByRole("button",{name:"Ejecutar",exact:true}).click();
     await page.getByRole("dialog").getByRole("button",{name:"Ejecutar",exact:true}).click();
     await page.getByRole("dialog").waitFor({state:"detached"});
@@ -404,15 +427,8 @@ test("pantallas, CRUD, conflicto, teclado, móvil y restricciones de navegación
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth),true);
     await page.setViewportSize({width:1440,height:900});
     await page.goto(url+"/integraciones");
-    await page.getByRole("button",{name:"Vincular Google",exact:true}).click();
-    await page.getByRole("dialog").getByLabel("Campaña interna").selectOption("1");
-    await page.getByRole("dialog").getByLabel("ID de cliente Google Ads (sin guiones)").fill("123");
-    await page.getByRole("dialog").getByLabel("ID de campaña Google Ads").fill("456");
-    await page.getByRole("button",{name:"Guardar vínculo",exact:true}).click();
-    await page.getByRole("dialog").waitFor({state:"detached"});
-    await page.getByRole("button",{name:"Sincronizar Google Ads",exact:true}).click();
-    await page.getByText("1 día sincronizado de Google Ads.",{exact:true}).waitFor();
-    assert.equal(conectores.length,1);
+    await page.getByRole("heading",{name:"Canales de comunicación",exact:true}).waitFor();
+    assert.equal(await page.getByRole("button",{name:"Vincular Google",exact:true}).count(),0);
     const whatsapp=page.getByRole("region",{name:"Recepción de WhatsApp",exact:true});
     await whatsapp.getByText("<img src=x onerror=alert(1)> Quiero información",{exact:true}).waitFor();
     assert.equal(await whatsapp.locator("img").count(),0);
