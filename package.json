@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "test:crm": "node --test src/utils/csvCrm.test.js tests/crm-migraciones.test.mjs",
-    "test:crm:ui": "node --test tests/crm-navegador.test.mjs tests/publicidad-demo-navegador.test.mjs",
+    "test:crm:ui": "node --test tests/crm-navegador.test.mjs tests/publicidad-demo-navegador.test.mjs tests/empresas-navegador.test.mjs tests/agencia-navegador.test.mjs tests/informes-navegador.test.mjs tests/fases-agencia-navegador.test.mjs tests/contratacion-contextual-navegador.test.mjs",
     "lint": "eslint .",
     "preview": "vite preview"
   },

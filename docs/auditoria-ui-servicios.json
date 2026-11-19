@@ -1,0 +1,5 @@
+{
+  "modo": "strict",
+  "resultado": "sin_resultado",
+  "detalle": "El auditor premium no terminó dentro de 20 segundos. No se declara aprobada la auditoría estática. Se ejecutan comprobaciones propias de navegador, lint, migraciones y compilación por separado."
+}

@@ -1,4 +1,9 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useParams,useSearchParams } from "react-router-dom";
+import PantallaAgencia from "../screens/agencia/PantallaAgencia";
+import PortalCliente from "../screens/agencia/PortalCliente";
+import AccesosPortal from "../screens/agencia/AccesosPortal";
+import AsistenteContrato from "../screens/agencia/AsistenteContrato";
+import FichaContrato from "../screens/agencia/FichaContrato";
 import DashboardPorRol from "../componentes/autorizacion/DashboardPorRol";
 import PaginaPorRol from "../componentes/autorizacion/PaginaPorRol";
 import RutaPorRol from "../componentes/autorizacion/RutaPorRol";
@@ -30,6 +35,9 @@ import CamposPersonalizados from "../screens/crm/CamposPersonalizados";
 import EditorFlujos from "../screens/crm/EditorFlujos";
 import { GRUPOS_PERMITIDOS, GRUPOS_ROL } from "../utils/roles";
 
+function CuentaAnterior() { const { id } = useParams(); return <Navigate to={`/empresas/${id}`} replace/>; }
+function EntregasAnterior(){const [p]=useSearchParams();const id=p.get("contrato");return <Navigate to={id&&/^\d+$/.test(id)?`/contratos/${id}`:"/contratos"} replace/>;}
+
 export default function RutasAplicacion() {
   return (
     <Routes>
@@ -37,6 +45,7 @@ export default function RutasAplicacion() {
       <Route path="/login" element={<PantallaLogin />} />
       <Route path="/registro" element={<PantallaRegistro />} />
       <Route path="/inicio" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/portal" element={<RutaProtegida><RutaPorRol gruposPermitidos={[GRUPOS_ROL.CLIENTE]}><PortalCliente/></RutaPorRol></RutaProtegida>}/>
 
       <Route
         element={
@@ -45,6 +54,12 @@ export default function RutasAplicacion() {
           </RutaProtegida>
         }
       >
+        <Route path="/contratos/nuevo" element={<RutaPorRol gruposPermitidos={GRUPOS_PERMITIDOS.ADMINISTRADOR_LIDER}><AsistenteContrato/></RutaPorRol>}/>
+        <Route path="/contratos/borradores/:borrador" element={<RutaPorRol gruposPermitidos={GRUPOS_PERMITIDOS.ADMINISTRADOR_LIDER}><AsistenteContrato/></RutaPorRol>}/>
+        <Route path="/contratos/:id" element={<RutaPorRol gruposPermitidos={GRUPOS_PERMITIDOS.TODOS}><FichaContrato/></RutaPorRol>}/>
+        <Route path="/entregas" element={<RutaPorRol gruposPermitidos={GRUPOS_PERMITIDOS.TODOS}><EntregasAnterior/></RutaPorRol>}/>
+        <Route path="/accesos-portal" element={<RutaPorRol gruposPermitidos={GRUPOS_PERMITIDOS.ADMINISTRADOR}><AccesosPortal/></RutaPorRol>}/>
+        {[['/contratos','contratos'],['/cotizaciones','cotizaciones'],['/cuentas-publicitarias','cuentas-publicitarias'],['/anuncios','anuncios'],['/calendario-editorial','calendario'],['/entregables','entregables'],['/recomendaciones','recomendaciones'],['/ajustes','ajustes'],['/informes-contrato','informes'],['/servicios','servicios']].map(([path,recurso]) => <Route key={path} path={path} element={<RutaPorRol gruposPermitidos={['cotizaciones','cuentas-publicitarias','ajustes','servicios'].includes(recurso) ? GRUPOS_PERMITIDOS.ADMINISTRADOR_LIDER : GRUPOS_PERMITIDOS.TODOS}><PantallaAgencia key={recurso} recurso={recurso}/></RutaPorRol>}/>)}
         <Route path="/automatizaciones/:id/flujo" element={<RutaPorRol gruposPermitidos={GRUPOS_PERMITIDOS.ADMINISTRADOR_LIDER}><EditorFlujos/></RutaPorRol>}/>
         <Route path="/campos-personalizados" element={<RutaPorRol gruposPermitidos={GRUPOS_PERMITIDOS.ADMINISTRADOR}><CamposPersonalizados/></RutaPorRol>}/>
         {[
@@ -97,8 +112,11 @@ export default function RutasAplicacion() {
             </RutaPorRol>
           }
         />
+        <Route path="/cuentas" element={<Navigate to="/empresas" replace/>}/>
+        <Route path="/cuentas/:id" element={<CuentaAnterior/>}/>
+        <Route path="/clientes-canales" element={<Navigate to="/empresas" replace/>}/>
         <Route
-          path="/cuentas"
+          path="/empresas"
           element={
             <RutaPorRol
               gruposPermitidos={GRUPOS_PERMITIDOS.ADMINISTRADOR_LIDER}
@@ -108,7 +126,7 @@ export default function RutasAplicacion() {
           }
         />
         <Route
-          path="/cuentas/:id"
+          path="/empresas/:id"
           element={
             <RutaPorRol
               gruposPermitidos={GRUPOS_PERMITIDOS.ADMINISTRADOR_LIDER}
@@ -142,7 +160,7 @@ export default function RutasAplicacion() {
           }
         />
         <Route
-          path="/clientes-canales"
+          path="/canales-difusion"
           element={
             <RutaPorRol
               gruposPermitidos={GRUPOS_PERMITIDOS.ADMINISTRADOR_LIDER}

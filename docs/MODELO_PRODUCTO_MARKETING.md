@@ -46,3 +46,11 @@ La referencia identifica el vínculo local, no un ID de anuncio real. La base co
 El administrador vincula/sincroniza y gestiona inversiones; los roles con lectura de Atribución consultan. Crear o anular una inversión registra auditoría; los conflictos de versión se rechazan con 409. El backend exige sesión y autorización.
 
 Aplicar migraciones hasta v8 antes de activar esta versión. El backend usa Java 25 y las dos variables Mockaroo. WhatsApp conserva sus propias credenciales y webhook; los conectores publicitarios Meta/Google ya no forman parte del flujo vigente. No se elimina ningún histórico ni se modifica un anuncio externo.
+
+## Identidad única de empresa
+
+## Servicios contratados
+
+La propuesta del 18 de noviembre añade cotizaciones, contratos y tres modalidades de servicio. Ver [CONTRATOS_Y_SERVICIOS.md](CONTRATOS_Y_SERVICIOS.md). La decisión nueva exige señalar datos simulados y publicaciones de demostración en esas vistas; reemplaza la omisión de esas etiquetas descrita anteriormente. Las métricas propias de anuncios del contrato y los históricos agregados de campañas permanecen separados para evitar doble pauta. Los honorarios previstos de la agencia no se incorporan a ventas atribuidas del cliente.
+
+Desde CRM v9, Clientes / Empresas registra una sola ficha en `/empresas`. Campañas utiliza automáticamente su identidad comercial y Contactos usa su perfil CRM. No se requiere crear ni vincular una segunda cuenta. Canales de difusión está separado en Marketing; los canales de comunicación están en Configuración. Ver [EMPRESAS_UNIFICADAS.md](EMPRESAS_UNIFICADAS.md).

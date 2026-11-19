@@ -18,7 +18,7 @@ const clientes = {
   id: "clientes",
   nombre: "Clientes",
   icono: People3,
-  enlaces: [{ nombre: "Clientes y canales", ruta: "/clientes-canales" }],
+  enlaces: [{ nombre: "Clientes / Empresas", ruta: "/empresas" }, { nombre: "Cotizaciones", ruta: "/cotizaciones" }, { nombre: "Contratos y servicios", ruta: "/contratos" }],
 };
 
 const crm = {
@@ -27,7 +27,6 @@ const crm = {
   icono: ContactRound,
   enlaces: [
     { nombre: "Contactos / Leads", ruta: "/contactos" },
-    { nombre: "Cuentas / Empresas", ruta: "/cuentas" },
     { nombre: "Pipeline", ruta: "/pipeline" },
     { nombre: "Actividades", ruta: "/actividades" },
   ],
@@ -45,9 +44,14 @@ const campanas = {
   icono: CardList,
   enlaces: [
     { nombre: "Campañas", ruta: "/campanas" },
+    { nombre: "Canales de difusión", ruta: "/canales-difusion" },
     { nombre: "Audiencias", ruta: "/audiencias" },
     { nombre: "Contenido y aprobaciones", ruta: "/contenido" },
     { nombre: "Automatizaciones", ruta: "/automatizaciones" },
+    { nombre: "Cuentas publicitarias", ruta: "/cuentas-publicitarias" },
+    { nombre: "Anuncios y publicaciones", ruta: "/anuncios" },
+    { nombre: "Calendario editorial", ruta: "/calendario-editorial" },
+    { nombre: "Entregables", ruta: "/entregables" },
   ],
 };
 
@@ -61,6 +65,9 @@ const resultados = {
     { nombre: "Reportes y exportación", ruta: "/reportes" },
     { nombre: "Atribución", ruta: "/atribucion" },
     { nombre: "Metas y alertas", ruta: "/metas" },
+    { nombre: "Recomendaciones", ruta: "/recomendaciones" },
+    { nombre: "Ajustes autorizados", ruta: "/ajustes" },
+    { nombre: "Informes por contrato", ruta: "/informes-contrato" },
   ],
 };
 
@@ -72,8 +79,10 @@ const configuracion = {
     { nombre: "Gestión de usuarios", ruta: "/usuarios" },
     { nombre: "Roles y permisos", ruta: "/roles-permisos" },
     { nombre: "Campos personalizados", ruta: "/campos-personalizados" },
-    { nombre: "Integraciones", ruta: "/integraciones" },
+    { nombre: "Canales de comunicación", ruta: "/integraciones" },
     { nombre: "Auditoría", ruta: "/auditoria" },
+    { nombre: "Catálogo de servicios", ruta: "/servicios" },
+    { nombre: "Accesos al portal", ruta: "/accesos-portal" },
   ],
 };
 
@@ -85,11 +94,11 @@ export const modulosPorRol = {
     crmAnalista,
     {
       ...campanas,
-      enlaces: campanas.enlaces.filter((e) => e.ruta !== "/automatizaciones"),
+      enlaces: [...campanas.enlaces.filter((e) => !["/automatizaciones", "/canales-difusion", "/cuentas-publicitarias"].includes(e.ruta)), { nombre: "Contratos", ruta: "/contratos" }],
     },
     {
       ...resultados,
-      enlaces: resultados.enlaces.filter((e) => e.ruta !== "/metas"),
+      enlaces: resultados.enlaces.filter((e) => !["/metas", "/ajustes"].includes(e.ruta)),
     },
   ],
 };

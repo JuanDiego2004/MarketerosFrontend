@@ -4,6 +4,7 @@ import { Mail as Email, LockKeyhole as PrivateOutline } from "lucide-react";
 
 import Input from "../../componentes/Input.jsx";
 import { useAuth } from "../../contexto/ContextoAuth";
+import { obtenerGrupoRol,GRUPOS_ROL } from "../../utils/roles";
 
 export default function LoginForm() {
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -48,7 +49,7 @@ export default function LoginForm() {
 
       const datos = cuerpo.datos;
       guardarSesion(datos);
-      navegar("/dashboard", { replace: true });
+      navegar(obtenerGrupoRol(datos.usuario?.rol?.nombreRol)===GRUPOS_ROL.CLIENTE?"/portal":"/dashboard", { replace: true });
     } catch (errorPeticion) {
       setError(
         errorPeticion instanceof Error

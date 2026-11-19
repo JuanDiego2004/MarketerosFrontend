@@ -1,0 +1,5 @@
+{
+  "modo": "strict",
+  "resultado": "sin_resultado",
+  "detalle": "El auditor premium no produjo resultado dentro de 20 segundos. No se declara aprobada esta auditoría. La verificación de navegador, PDF, base de datos, lint y compilaciones se registra por separado."
+}

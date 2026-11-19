@@ -2,6 +2,7 @@ export const GRUPOS_ROL = {
   ADMINISTRADOR: "administrador",
   LIDER: "lider",
   ANALISTA: "analista",
+  CLIENTE: "cliente",
 };
 
 export const GRUPOS_PERMITIDOS = {
@@ -20,6 +21,7 @@ export function normalizarTexto(texto = "") {
 
 export function obtenerGrupoRol(nombreRol = "") {
   const rol = normalizarTexto(nombreRol);
+  if (rol === "cliente") return GRUPOS_ROL.CLIENTE;
 
   if (rol.includes("admin")) return GRUPOS_ROL.ADMINISTRADOR;
   if (

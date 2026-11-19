@@ -71,7 +71,7 @@ export const operaciones = {
       campo("fecha", "Fecha y hora", "datetime-local", { requerido: true }),
       responsable,
       lista("contacto_id", "Contacto", "contactos", false),
-      lista("cuenta_id", "Cuenta (alternativa al contacto)", "cuentas", false),
+      lista("cuenta_id", "Empresa (alternativa al contacto)", "cuentas", false),
       lista(
         "oportunidad_id",
         "Oportunidad (alternativa al contacto)",

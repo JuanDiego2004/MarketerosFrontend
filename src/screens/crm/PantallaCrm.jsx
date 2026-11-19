@@ -51,9 +51,11 @@ const camposContacto = [
 ];
 const camposCuenta = [
   ["nombre", "Nombre de la empresa", "text", true],
+  ["correo", "Correo de la empresa", "email"],
+  ["telefono", "Teléfono de la empresa", "tel"],
   ["sector", "Sector", "text"],
   ["sitioWeb", "Sitio web", "url"],
-  ["clienteId", "Cliente de la agencia (opcional)", "clientes"],
+  ["estado", "Estado de la empresa", ["ACTIVO", "INACTIVO"], true],
 ];
 const inicial = {
   nombre: "",
@@ -92,7 +94,8 @@ export default function PantallaCrm({ recurso = "contactos" }) {
   const pagina = Math.max(0, Number(params.get("pagina")) || 0);
   const estado = params.get("estado") || "";
   const contactos = recurso === "contactos";
-  const titulo = contactos ? "Contactos" : "Cuentas";
+  const titulo = contactos ? "Contactos" : "Clientes / Empresas";
+  const rutaFicha = contactos ? "contactos" : "empresas";
   const gestionar = capacidades?.[`${recurso}Gestionar`] === true;
 
   useEffect(() => {
@@ -166,7 +169,7 @@ export default function PantallaCrm({ recurso = "contactos" }) {
     setErrorModal("");
     setAbandonar(false);
     setSucio(false);
-    setBorrador(tipo === "editar" ? { ...datos } : { ...inicial });
+    setBorrador(tipo === "editar" ? { ...datos } : { ...inicial, estado: contactos ? "NUEVO" : "ACTIVO" });
     setModal(tipo);
   }
   function cerrar() {
@@ -295,7 +298,7 @@ export default function PantallaCrm({ recurso = "contactos" }) {
   }
   const tabs = contactos
     ? ["Resumen", "Línea de tiempo", "Notas", "Consentimiento", "Archivos"]
-    : ["Resumen", "Contactos", "Línea de tiempo", "Notas", "Archivos"];
+    : ["Resumen", "Campañas", "Contactos", "Oportunidades", "Actividades", "Línea de tiempo", "Notas", "Archivos"];
 
   return (
     <section className="crm">
@@ -305,13 +308,13 @@ export default function PantallaCrm({ recurso = "contactos" }) {
           <h1>{id ? datos?.nombre || "Ficha CRM" : titulo}</h1>
           <p className="crm-ayuda">
             {contactos
-              ? "Personas, origen e historial de la relación con tu agencia."
-              : "Empresas y contactos vinculados en un mismo lugar."}
+              ? "Personas interesadas, empresa y campaña de origen, con su historial de seguimiento."
+              : "Una ficha por empresa: datos, campañas, contactos y seguimiento comercial."}
           </p>
         </div>
         <div className="crm-acciones">
           {id ? (
-            <Link className="crm-boton" to={`/${recurso}`}>
+            <Link className="crm-boton" to={`/${rutaFicha}`}>
               <ArrowLeft size={16} /> Volver
             </Link>
           ) : (
@@ -361,7 +364,7 @@ export default function PantallaCrm({ recurso = "contactos" }) {
                 ? "Editar ficha"
                 : contactos
                   ? "Nuevo contacto"
-                  : "Nueva cuenta"}
+                  : "Nueva empresa"}
             </button>
           )}
         </div>
@@ -422,15 +425,16 @@ export default function PantallaCrm({ recurso = "contactos" }) {
               </button>
             </span>
           </label>
-          {contactos && (
+          {(
             <label className="crm-campo">
               Estado
               <select
+                aria-label="Estado"
                 value={estado}
                 onChange={(e) => filtrar("estado", e.target.value)}
               >
                 <option value="">Todos los estados</option>
-                {estados.map((e) => (
+                {(contactos ? estados : ["ACTIVO", "INACTIVO"]).map((e) => (
                   <option key={e}>{e}</option>
                 ))}
               </select>
@@ -480,7 +484,7 @@ export default function PantallaCrm({ recurso = "contactos" }) {
                             "Origen",
                             "Ficha",
                           ]
-                        : ["Empresa", "Sector", "Cliente", "Sitio web", "Ficha"]
+                        : ["Empresa", "Sector", "Correo", "Teléfono", "Estado", "Ficha"]
                       ).map((c) => (
                         <th scope="col" key={c}>
                           {c}
@@ -511,12 +515,13 @@ export default function PantallaCrm({ recurso = "contactos" }) {
                         ) : (
                           <>
                             <td>{f.sector || "—"}</td>
-                            <td>{f.cliente || "—"}</td>
-                            <td>{f.sitioWeb || "—"}</td>
+                            <td>{f.correo || "—"}</td>
+                            <td>{f.telefono || "—"}</td>
+                            <td>{f.estado}</td>
                           </>
                         )}
                         <td>
-                          <Link className="crm-link" to={`/${recurso}/${f.id}`}>
+                          <Link className="crm-link" to={`/${rutaFicha}/${f.id}`}>
                             Ver ficha
                             <span className="sr-only"> de {f.nombre}</span>
                           </Link>
@@ -614,9 +619,11 @@ export default function PantallaCrm({ recurso = "contactos" }) {
                           ["Etiquetas", datos.etiquetas],
                         ]
                       : [
+                          ["Correo", datos.correo],
+                          ["Teléfono", datos.telefono],
+                          ["Estado", datos.estado],
                           ["Sector", datos.sector],
                           ["Sitio web", datos.sitioWeb],
-                          ["Cliente de agencia", datos.cliente],
                         ]
                     )
                       .concat([
@@ -660,12 +667,15 @@ export default function PantallaCrm({ recurso = "contactos" }) {
                       className="crm-boton crm-peligro mt-8"
                       onClick={() => abrir("eliminar")}
                     >
-                      <Trash2 size={16} /> Eliminar{" "}
-                      {contactos ? "contacto" : "cuenta"}
+                      <Trash2 size={16} /> {contactos ? "Eliminar contacto" : "Archivar empresa"}
                     </button>
                   )}
                 </>
               )}
+              {!contactos && ["Campañas", "Oportunidades", "Actividades"].includes(tab) && <section aria-label={tab}>
+                <h2>{tab} de la empresa</h2>
+                {(datos[tab === "Campañas" ? "campanas" : tab.toLowerCase()] || []).length ? <div className="crm-scroll"><table><thead><tr><th scope="col">Nombre</th><th scope="col">Estado</th>{tab === "Oportunidades" && <th scope="col">Valor</th>}{tab === "Actividades" && <th scope="col">Fecha</th>}</tr></thead><tbody>{datos[tab === "Campañas" ? "campanas" : tab.toLowerCase()].map((f) => <tr key={f.id}><td>{f.nombre}</td><td>{f.etapa || f.estado}</td>{tab === "Oportunidades" && <td>{Number(f.valor).toLocaleString("es-PE", { maximumFractionDigits: 2 })} {f.moneda}</td>}{tab === "Actividades" && <td>{fecha(f.fecha)}</td>}</tr>)}</tbody></table></div> : <p className="crm-vacio">No hay {tab.toLowerCase()} registradas para esta empresa.</p>}
+              </section>}
               {tab === "Contactos" &&
                 (datos.contactos.length ? (
                   datos.contactos.map((c) => (
@@ -842,13 +852,13 @@ export default function PantallaCrm({ recurso = "contactos" }) {
             abandonar
               ? "¿Descartar los cambios?"
               : modal === "crear"
-                ? `Crear ${contactos ? "contacto" : "cuenta"}`
+                ? `Crear ${contactos ? "contacto" : "empresa"}`
                 : modal === "editar"
                   ? "Editar ficha"
                   : modal === "importar"
                     ? "Revisar importación"
                     : modal === "eliminar"
-                      ? "Eliminar registro"
+                      ? (contactos ? "Eliminar registro" : "Archivar empresa")
                       : "Registrar consentimiento"
           }
           cerrar={cerrar}
@@ -897,6 +907,7 @@ export default function PantallaCrm({ recurso = "contactos" }) {
                     {Array.isArray(tipo) || opciones[tipo] ? (
                       <select
                         name={campo}
+                        aria-label={etiqueta}
                         required={required}
                         value={borrador[campo] ?? ""}
                         onChange={(e) => cambiar(campo, e.target.value)}
@@ -931,13 +942,13 @@ export default function PantallaCrm({ recurso = "contactos" }) {
                           campo === "etiquetas"
                             ? 500
                             : campo === "telefono"
-                              ? 30
+                              ? (contactos ? 30 : 20)
                               : campo === "correo"
-                                ? 180
+                                ? (contactos ? 180 : 150)
                                 : campo === "sitioWeb"
                                   ? 300
                                   : campo === "nombre"
-                                    ? 160
+                                    ? (contactos ? 160 : 150)
                                     : 120
                         }
                         onChange={(e) => cambiar(campo, e.target.value)}
@@ -949,7 +960,7 @@ export default function PantallaCrm({ recurso = "contactos" }) {
               <p className="crm-ayuda crm-ancho">
                 {contactos
                   ? "Se evita duplicar correos y teléfonos. El consentimiento se registra por separado en la ficha."
-                  : "Al eliminar una cuenta se conservan sus contactos y se desvinculan de la empresa."}
+                  : "La empresa queda disponible al crear campañas. Archivarla conserva campañas, contactos e historial."}
               </p>
               <div className="crm-acciones crm-ancho">
                 <button
@@ -971,11 +982,7 @@ export default function PantallaCrm({ recurso = "contactos" }) {
           ) : modal === "eliminar" ? (
             <>
               <p>
-                Se eliminarán {datos?.nombre}, sus notas, archivos e historial.{" "}
-                {contactos
-                  ? "También sus consentimientos."
-                  : "Sus contactos se conservarán sin empresa."}{" "}
-                Esta acción no se puede deshacer.
+                {contactos ? <>Se eliminarán {datos?.nombre}, sus notas, archivos, historial y consentimientos. Esta acción no se puede deshacer.</> : <>Se archivará {datos?.nombre}. Sus campañas, contactos, oportunidades e historial se conservan. Puedes reactivarla desde Editar ficha.</>}
               </p>
               <div className="crm-acciones mt-5">
                 <button
@@ -989,11 +996,11 @@ export default function PantallaCrm({ recurso = "contactos" }) {
                   className="crm-boton crm-peligro"
                   disabled={ocupado}
                   onClick={async () => {
-                    if (await operacion(`/${recurso}/${id}`, "DELETE"))
-                      navegar(`/${recurso}`, { replace: true });
+                    if (await operacion(`/${recurso}/${id}${contactos ? "" : "/archivar"}`, contactos ? "DELETE" : "POST"))
+                      navegar(`/${rutaFicha}`, { replace: true });
                   }}
                 >
-                  Eliminar definitivamente
+                  {contactos ? "Eliminar definitivamente" : "Confirmar archivo"}
                 </button>
               </div>
             </>

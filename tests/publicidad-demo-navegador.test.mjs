@@ -83,7 +83,7 @@ test("Mockaroo: vincular, error recuperable, sincronizar, filtros, CSV, mapa, m�
     await page.getByRole("dialog").waitFor({ state: "detached" });
     await comercial.getByText("Anulado", { exact: true }).waitFor();
     assert.equal(inversiones[0].anulado, true);
-    assert.doesNotMatch(await page.getByRole("region", { name: "Rendimiento publicitario", exact: true }).innerText(), /simulad|demostraci[oó]n|de prueba/i);
+    assert.match(await page.getByRole("region", { name: "Rendimiento publicitario", exact: true }).innerText(), /Datos simulados con Mockaroo/i);
     assert.equal(await page.getByRole("button", { name: /^Filtrar .*impresiones$/ }).count(), 9);
     await page.getByLabel("Métrica del gráfico").selectOption("clics");
     await page.getByRole("img", { name: "Clics por día", exact: true }).waitFor();

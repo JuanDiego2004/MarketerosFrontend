@@ -9,21 +9,6 @@ import {
 } from "../../servicios/servicioAdministrador";
 
 const modulos = {
-  clientes: {
-    titulo: "Clientes",
-    id: "idCliente",
-    campos: [
-      ["nombre", "Nombre"],
-      ["correo", "Correo electrónico"],
-      ["telefono", "Teléfono"],
-    ],
-    columnas: [
-      { clave: "nombre", encabezado: "Cliente" },
-      { clave: "correo", encabezado: "Correo" },
-      { clave: "telefono", encabezado: "Teléfono" },
-      { clave: "estado", encabezado: "Estado", tipo: "estado" },
-    ],
-  },
   canales: {
     titulo: "Canales de difusión",
     id: "idCanal",
@@ -54,7 +39,7 @@ export default function ClientesCanalesAdministrador({
   apiBase = "/api/admin",
 }) {
   const { token } = useAuth();
-  const [activo, setActivo] = useState("clientes");
+  const activo = "canales";
   const [registros, setRegistros] = useState([]);
   const [formulario, setFormulario] = useState({});
   const [idEditando, setIdEditando] = useState(null);
@@ -64,7 +49,7 @@ export default function ClientesCanalesAdministrador({
   const [cargando, setCargando] = useState(true);
   const [guardando, setGuardando] = useState(false);
   const configuracion = modulos[activo];
-  const entidad = activo === "clientes" ? "cliente" : "canal de difusión";
+  const entidad = "canal de difusión";
   const etiquetaModulo =
     apiBase === "/api/admin" ? "Administración" : "Marketing";
 
@@ -81,6 +66,7 @@ export default function ClientesCanalesAdministrador({
   }, [activo, token, apiBase]);
 
   useEffect(() => {
+    document.title = "Canales de difusión · MarketingSystem";
     let vigente = true;
     listarModuloAdministrador(activo, token, apiBase)
       .then((datos) => {
@@ -124,6 +110,9 @@ export default function ClientesCanalesAdministrador({
 
   async function guardar(evento) {
     evento.preventDefault();
+    if (guardando) return;
+    const invalido = [...evento.currentTarget.elements].find((campo) => campo.willValidate && !campo.validity.valid);
+    if (invalido) { setError("Completa el nombre y el tipo de canal."); invalido.setAttribute("aria-invalid", "true"); invalido.setAttribute("aria-describedby", "canal-error"); invalido.focus(); return; }
     setGuardando(true);
     setError("");
     setMensaje("");
@@ -174,10 +163,10 @@ export default function ClientesCanalesAdministrador({
             {etiquetaModulo}
           </p>
           <h1 className="text-2xl font-semibold tracking-tight text-slate-950 md:text-3xl">
-            Clientes y canales
+            Canales de difusión
           </h1>
           <p className="mt-2 text-sm text-slate-500">
-            Administra los catálogos que se utilizan al crear campañas.
+            Define los canales disponibles para tus campañas, como Facebook, TikTok o YouTube. Las empresas se gestionan en Clientes / Empresas.
           </p>
         </div>
         <div className="text-right">
@@ -188,23 +177,6 @@ export default function ClientesCanalesAdministrador({
             {registros.length.toLocaleString("es-PE")}
           </p>
         </div>
-      </div>
-      <div className="mb-4 inline-flex rounded-xl border border-slate-200 bg-white p-1 shadow-sm">
-        {Object.entries(modulos).map(([clave, modulo]) => (
-          <button
-            key={clave}
-            type="button"
-            onClick={() => {
-              setActivo(clave);
-              setCargando(true);
-              setMensaje("");
-              setError("");
-            }}
-            className={`rounded-lg px-3.5 py-2 text-xs font-semibold transition ${activo === clave ? "bg-slate-950 text-white shadow-sm" : "text-slate-500 hover:bg-slate-100 hover:text-slate-900"}`}
-          >
-            {modulo.titulo}
-          </button>
-        ))}
       </div>
       {error && !drawerAbierto && (
         <p
@@ -260,7 +232,7 @@ export default function ClientesCanalesAdministrador({
         titulo={`${idEditando ? "Editar" : "Registrar"} ${entidad}`}
         descripcion="Los datos registrados estarán disponibles al configurar campañas."
       >
-        <form onSubmit={guardar} className="flex min-h-full flex-col">
+        <form noValidate onSubmit={guardar} className="flex min-h-full flex-col" onChange={(e) => { e.target.removeAttribute("aria-invalid"); e.target.removeAttribute("aria-describedby"); }}>
           <div className="grid gap-5">
             {configuracion.campos.map(([campo, etiqueta]) => (
               <label
@@ -270,6 +242,7 @@ export default function ClientesCanalesAdministrador({
                 {etiqueta}
                 {campo === "tipoCanal" ? (
                   <select
+                    aria-label={etiqueta}
                     required
                     className={clasesCampo}
                     value={formulario[campo] ?? ""}
@@ -289,6 +262,7 @@ export default function ClientesCanalesAdministrador({
                   </select>
                 ) : (
                   <input
+                    aria-label={etiqueta}
                     required={campo === "nombre" || campo === "nombreCanal"}
                     type={campo === "correo" ? "email" : "text"}
                     className={clasesCampo}
@@ -311,6 +285,7 @@ export default function ClientesCanalesAdministrador({
           </div>
           {error && (
             <p
+              id="canal-error"
               role="alert"
               className="mt-5 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"
             >

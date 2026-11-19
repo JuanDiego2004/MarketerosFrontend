@@ -78,6 +78,14 @@ Rendimiento publicitario reutiliza tarjetas, filtros y diálogos CRM, con iconos
 
 ## Do's and Don'ts
 
+La contratación contextual usa `AsistenteContrato` para los cinco pasos y `FichaContrato` como centro del servicio. Conserva Crm.css, controles nativos, pasos visibles, DialogoCrm y Lucide React. Materiales, comparación y PDF se presentan en la ficha; `/entregas` es una redirección de compatibilidad. El portal omite producción, pauta y revisión de material en solo análisis. La referencia funcional vigente es `docs/CONTRATACION_CONTEXTUAL.md`.
+
 - Mantener visibles la ruta activa y el foco de teclado.
 - Añadir nuevas entradas cuando tengan pantalla, API y autorización completas.
 - Evitar una lista plana larga de enlaces y menús sin destino funcional.
+
+Clientes / Empresas tiene una única entrada bajo Clientes. La ficha reutiliza las tablas, pestañas, controles nativos y DialogoCrm de contactos; los iconos conservan Lucide. Marketing separa Canales de difusión y Configuración muestra Canales de comunicación. Archivar se explica como acción reversible que conserva el historial, con confirmación del producto.
+
+Contratos y servicios amplía esa navegación con cotizaciones, cuentas publicitarias, anuncios, calendario editorial, entregables e informes. `PantallaAgencia` y `configuracionAgencia` reutilizan `Crm.css`, DialogoCrm, controles nativos e iconos Lucide. Los datos publicitarios y las publicaciones se identifican explícitamente como simulados, conforme a la propuesta del 18 de noviembre. El informe distingue honorarios, producción, presupuesto autorizado y gasto. Los gráficos por anuncio reutilizan los dueños existentes de evolución y mapa.
+
+Entregas y análisis reutiliza los mismos controles para materiales, comparaciones y versiones PDF. AlcanceContrato es el editor compartido de prestaciones en cotizaciones y contratos. PortalCliente mantiene superficies claras y tarjetas CRM con una cabecera propia, sin navegación interna de agencia. Sus vistas de materiales usan VistaMaterial y el diálogo CRM; las previsualizaciones se limitan al viewport. Los informes PDF usan azul de marca, página A4, márgenes estables y pie con contrato, versión y número de página.
