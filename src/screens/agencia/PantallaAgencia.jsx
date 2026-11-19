@@ -62,12 +62,16 @@ export default function PantallaAgencia({ recurso = "contratos", contratoContext
    setAccion(null); setMensaje("Operación completada. El historial conserva la decisión."); refrescar();
   } catch (e) { setError(e.message); } finally { setOcupado(false); }
  }
- async function ver(fila, tipo) {
+ async function ver(fila, tipo, periodo) {
   setOcupado(true); setError("");
-  try { setDetalle({ tipo, datos: await api(tipo === "informe" ? `/contratos/${fila.id}/informe` : `/anuncios/${fila.id}/metricas?desde=${desde}&hasta=${hasta}`) }); }
+  try { setDetalle({ tipo, datos: await api(tipo === "informe" ? `/contratos/${fila.id}/informe` : `/anuncios/${fila.id}/metricas?desde=${periodo?.desde||desde}&hasta=${periodo?.hasta||hasta}`) }); }
   catch (e) { setError(e.message); } finally { setOcupado(false); }
  }
  const seleccionado = opciones?.contratos.find(c => String(c.id) === String(form?.contrato_id));
+ async function prepararEstadisticas(){
+  if(ocupado||!detalle)return;setOcupado(true);setError("");
+  try{const r=await solicitarCrm(`/contratacion/contratos/${detalle.datos.anuncio.contrato_id}/estadisticas-iniciales`,token,{method:"POST"});if(r.estado==="ERROR")throw new Error(r.mensaje);await ver(detalle.datos.anuncio,"metricas");}catch(e){setError(e.message);}finally{setOcupado(false);}
+ }
  function opcionesCampo(c) {
   if (Array.isArray(c.options)) return c.options.map(([id, nombre]) => ({ id, nombre }));
   let lista = opciones?.[c.options] || [];
@@ -115,7 +119,7 @@ export default function PantallaAgencia({ recurso = "contratos", contratoContext
    {accion.tipo === "vincular" && <label>Campaña<select aria-label="Campaña" value={accion.campana || ""} onChange={e => setAccion({ ...accion, campana: e.target.value })}><option value="">Seleccionar campaña</option>{opciones.campanas.filter(c => c.empresa_id === accion.fila.empresa_id && !c.contrato_id).map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}</select></label>}
    {accion.tipo === "renovar" && <label>Nuevo contrato<select value={accion.renovacion || ""} onChange={e => setAccion({ ...accion, renovacion: e.target.value })}><option value="">Seleccionar contrato</option>{opciones.contratos.filter(c => c.id !== accion.fila.id && c.empresa_id === accion.fila.empresa_id && ["APROBADO", "ACTIVO"].includes(c.estado)).map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}</select></label>}
    {error && <p className="crm-error" role="alert">{error}</p>}<div className="crm-acciones"><button className="crm-boton" disabled={ocupado} onClick={() => setAccion(null)}>Cancelar</button><button className="crm-boton crm-primario" disabled={ocupado || accion.tipo === "vincular" && !accion.campana || accion.tipo === "renovar" && !accion.renovacion} onClick={ejecutar}>Confirmar</button></div></DialogoCrm>}
-  {detalle && <DialogoCrm titulo={detalle.tipo === "informe" ? "Informe del servicio" : "Estadísticas del anuncio"} cerrar={() => setDetalle(null)}><Informe detalle={detalle}/></DialogoCrm>}
+  {detalle && <DialogoCrm titulo={detalle.tipo === "informe" ? "Informe del servicio" : "Estadísticas del anuncio"} cerrar={() => setDetalle(null)} ocupado={ocupado}>{error&&<p role="alert" className="crm-error">{error}</p>}<Informe detalle={detalle} gestionar={opciones?.gestionar} ocupado={ocupado} generar={prepararEstadisticas} verPeriodo={()=>ver(detalle.datos.anuncio,"metricas",detalle.datos.periodoDisponible)}/></DialogoCrm>}
  </Contenedor>;
 }
 
@@ -139,7 +143,7 @@ function CampoAgencia({campo:c,valor,opciones,cambiar}) {
  return <label className={`crm-campo ${c.type === "textarea" ? "crm-ancho" : ""}`}>{c.label}{c.required ? " *" : ""}{c.type === "select" ? <select {...propiedades}><option value="">Seleccionar</option>{opciones.map(o=><option key={o.id} value={o.id}>{o.codigo ? `${o.codigo} · ` : ""}{o.nombre}</option>)}</select> : c.type === "textarea" ? <textarea {...propiedades} maxLength={4000} rows={4}/> : <input {...propiedades} type={c.type} min={c.min ?? (c.type === "number" ? 0 : undefined)} max={c.max} step={c.type === "number" ? c.key === "cantidad" ? 1 : "0.01" : undefined} maxLength={c.key === "codigo" || c.key === "frecuencia" ? 80 : c.key === "plataformas" ? 300 : 160}/>}</label>;
 }
 
-function Informe({ detalle }) {
+function Informe({ detalle, gestionar, ocupado, generar, verPeriodo }) {
  const d = detalle.datos;
  const [pais, setPais] = useState("");
  const exportar = () => {
@@ -149,6 +153,7 @@ function Informe({ detalle }) {
   const metricas=d.resumen ? "\n\nRESULTADOS PUBLICITARIOS · todos los anuncios y países del contrato\n"+Object.entries(indicadoresInforme).map(([clave,etiqueta])=>`${etiqueta}: ${n(d.resumen[clave])}`).join("\n") : "";
   descargarCrm(new Blob(["\ufeff",texto,metricas],{type:"text/plain;charset=utf-8"}),`informe-contrato-${c.id}.txt`);
  };
+ if(detalle.tipo==="metricas"&&!d.filas.length)return <><p>{d.anuncio.codigo} · {d.fuente} · {d.moneda}</p>{Number(d.periodoDisponible?.filas)>0?<><p role="status">Este anuncio tiene estadísticas del {d.periodoDisponible.desde} al {d.periodoDisponible.hasta}. El periodo consultado no contiene datos.</p><button className="crm-boton" disabled={ocupado} onClick={verPeriodo}>Ver periodo con estadísticas</button></>:d.estadisticasIniciales==="FECHA_FUTURA"?<p role="status">El contrato todavía no inicia. Consulta sus estadísticas dentro de su vigencia.</p>:<><p role="status">{d.estadisticasIniciales==="ERROR"?"El contrato está guardado, pero falló la carga inicial de Mockaroo. Puedes reintentar.":"Aún no se cargaron estadísticas de Mockaroo para este anuncio."}</p>{gestionar&&<button className="crm-boton crm-primario" disabled={ocupado} aria-busy={ocupado} onClick={generar}>{ocupado?"Cargando estadísticas…":d.estadisticasIniciales==="ERROR"?"Reintentar estadísticas":"Generar estadísticas"}</button>}</>}</>;
  if (detalle.tipo === "metricas") return <><p>{d.anuncio.codigo} · {d.fuente} · {d.moneda}</p><div className="crm-demo-kpis">{Object.entries(d.resumen).map(([k,v]) => <section className="crm-panel" key={k}>{k}<strong>{n(v)}</strong></section>)}</div><p className="crm-ayuda">Ingresos son estimaciones del escenario; no representan ventas ganadas del CRM. CTR = clics / impresiones. CPC = gasto / clics. Los indicadores corresponden al anuncio completo; el país filtra la tabla de detalle.</p>{d.dias?.length > 0 && <EvolucionPublicidad dias={d.dias} moneda={d.moneda}/ >}{d.paises?.length > 0 && <MapaPublicidad paises={d.paises} seleccionar={setPais}/ >}{pais && <button className="crm-boton" onClick={()=>setPais("")}>Mostrar todos los países</button>}<button className="crm-boton" onClick={exportar}><Download size={16}/>Exportar estadísticas</button><div className="crm-scroll"><table><thead><tr>{["Fecha", "País", "Impresiones", "Clics", "Conversiones", "Gasto"].map(k => <th key={k}>{k}</th>)}</tr></thead><tbody>{d.filas.filter(f=>!pais || f.pais === pais).map(f => <tr key={`${f.fecha}-${f.pais}`}><td>{f.fecha}</td><td>{f.pais}</td><td>{n(f.impresiones)}</td><td>{n(f.clics)}</td><td>{n(f.conversiones)}</td><td>{n(f.inversion)}</td></tr>)}</tbody></table></div></>;
  const c = d.contrato;
  return <><p>{d.empresa.nombre} · CTR-{c.id} · {c.servicio} · {c.desde} a {c.hasta}</p><p>{d.fuente}</p><p>Alcance: {c.alcance}</p><div className="crm-demo-kpis">{[["Honorarios", c.honorarios], ["Producción", c.produccion], ["Presupuesto autorizado", c.presupuesto], ["Gasto publicitario simulado", d.gasto]].map(([k,v]) => <section className="crm-panel" key={k}>{k}<strong>{n(v)} {c.moneda}</strong></section>)}</div>{d.alertaPresupuesto && <p className="crm-error">El gasto alcanzó al menos el 80 % del presupuesto autorizado.</p>}{d.renovacionProxima && <p className="crm-ayuda">Revisa el cierre o la renovación del servicio.</p>}

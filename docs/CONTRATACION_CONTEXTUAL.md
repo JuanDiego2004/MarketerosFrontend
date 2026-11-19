@@ -38,9 +38,11 @@ Las configuraciones iniciales de contratos confirmados se conservan. La edición
 
 ## Referencias y Mockaroo
 
-La búsqueda usa empresa, plataforma e ID o código; no consulta ni verifica cuentas de Facebook, TikTok o Google. Encontrar un anuncio existente lo vincula sin copiar sus métricas. Una referencia nueva empieza sin datos.
+La búsqueda usa empresa, plataforma e ID o código; no consulta ni verifica cuentas de Facebook, TikTok o Google. Encontrar un anuncio existente lo vincula sin copiar sus métricas.
 
-**Métricas → Asociar datos Mockaroo** solicita una confirmación explícita. Solo se piden días que faltan, dentro de la vigencia, con un máximo de 90 días por consulta. La clave anuncio/fecha/país evita duplicados. Consultar resultados no consume Mockaroo.
+Al confirmar el contrato, la API guarda primero el contrato y sus relaciones y después solicita automáticamente un conjunto inicial de Mockaroo para los anuncios vinculados. Se cubren hasta siete días vigentes, sin fechas futuras. Esta carga inicial también se permite en difusión y no cambia el estado del contrato ni del anuncio. Si el proveedor falla, el contrato se conserva y «Ver estadísticas» ofrece reintentar. Un contrato cuyo inicio sea futuro muestra ese estado y no genera resultados antes de su vigencia.
+
+**Métricas → Asociar datos Mockaroo** se conserva para ampliar el periodo cuando el servicio incluye análisis. Solo se piden días que faltan, dentro de la vigencia, con un máximo de 90 días por consulta. La clave anuncio/fecha/país evita duplicados. Consultar resultados ya disponibles no consume Mockaroo.
 
 Las comparaciones, los totales del informe y el portal incluyen anuncios vinculados aunque procedan de otro contrato de la misma empresa. Se conserva la moneda y se rechaza una referencia incompatible. Las cifras no representan publicación ni validación en plataformas reales.
 

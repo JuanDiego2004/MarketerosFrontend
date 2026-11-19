@@ -9,7 +9,7 @@
     "test:auth": "node --test tests/login-navegador.test.mjs",
     "test:drawer": "node --test tests/drawer-formularios-navegador.test.mjs",
     "test:crm": "node --test src/utils/csvCrm.test.js tests/crm-migraciones.test.mjs src/utils/presupuestoContrato.test.js",
-    "test:crm:ui": "node --test tests/crm-navegador.test.mjs tests/publicidad-demo-navegador.test.mjs tests/empresas-navegador.test.mjs tests/agencia-navegador.test.mjs tests/informes-navegador.test.mjs tests/fases-agencia-navegador.test.mjs tests/contratacion-contextual-navegador.test.mjs tests/contrato-audiencias-navegador.test.mjs tests/presupuesto-contrato-navegador.test.mjs",
+    "test:crm:ui": "node --test tests/crm-navegador.test.mjs tests/publicidad-demo-navegador.test.mjs tests/empresas-navegador.test.mjs tests/agencia-navegador.test.mjs tests/informes-navegador.test.mjs tests/fases-agencia-navegador.test.mjs tests/contratacion-contextual-navegador.test.mjs tests/contrato-audiencias-navegador.test.mjs tests/presupuesto-contrato-navegador.test.mjs tests/estadisticas-iniciales-navegador.test.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
     "test:portal": "node --test tests/analitica-portal.test.mjs tests/portal-rls.test.mjs",
