@@ -11,12 +11,16 @@
     "test:crm": "node --test src/utils/csvCrm.test.js tests/crm-migraciones.test.mjs src/utils/presupuestoContrato.test.js",
     "test:crm:ui": "node --test tests/crm-navegador.test.mjs tests/publicidad-demo-navegador.test.mjs tests/empresas-navegador.test.mjs tests/agencia-navegador.test.mjs tests/informes-navegador.test.mjs tests/fases-agencia-navegador.test.mjs tests/contratacion-contextual-navegador.test.mjs tests/contrato-audiencias-navegador.test.mjs tests/presupuesto-contrato-navegador.test.mjs",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:portal": "node --test tests/analitica-portal.test.mjs tests/portal-rls.test.mjs",
+    "test:portal:ui": "node --test tests/portal-analitica-navegador.test.mjs"
   },
   "dependencies": {
     "@splinetool/react-spline": "^4.1.0",
     "@supabase/supabase-js": "^2.117.2",
     "@tailwindcss/vite": "^4.3.3",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.9",
     "lucide-react": "^1.73.0",
     "motion": "^14.0.0",
     "react": "^19.2.8",
@@ -24,7 +28,8 @@
     "react-globe.gl": "^2.38.0",
     "react-router-dom": "^7.18.4",
     "supercluster": "^9.1.0",
-    "tailwindcss": "^4.3.3"
+    "tailwindcss": "^4.3.3",
+    "three": "0.187.0"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.16",

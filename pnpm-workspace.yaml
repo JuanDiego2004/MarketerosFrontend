@@ -1,0 +1,3 @@
+# El reporte PDF no necesita ejecutar el postinstall informativo de core-js.
+allowBuilds:
+  core-js: false

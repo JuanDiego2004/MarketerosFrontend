@@ -9,6 +9,7 @@ test("Fases: archivo/reintento, comparación, PDF versionado, acceso y decisión
   const contrato={id:1,nombre:"Plan integral Andina",servicio:"INTEGRAL",estado:"ACTIVO",moneda:"PEN",desde:"2026-01-01",hasta:"2026-12-31",honorarios:500,produccion:200,presupuesto:1000};
   const png=Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/l9sAAAAASUVORK5CYII=","base64");
   async function preparar(rol){const ctx=await browser.newContext({viewport:{width:1440,height:960},reducedMotion:"reduce"});await ctx.addInitScript(rol=>localStorage.setItem("sesionAgencia",JSON.stringify({token:"fases-ui",fechaExpiracion:new Date(Date.now()+3600000).toISOString(),usuario:{nombres:"Persona",rol:{nombreRol:rol}}})),rol);
+   await ctx.route("**/rest/v1/rpc/crm_portal_estadisticas",r=>r.fulfill({status:404,json:{code:"PGRST202",message:"Analítica aún no habilitada"}}));
    await ctx.route("**/api/**",async r=>{const p=new URL(r.request().url()).pathname,m=r.request().method();let d=[];
     if(p==="/api/crm/agencia/opciones")d={gestionar:true,empresas:[{id:1,nombre:"Andina"}],usuarios:[],contratos:[contrato],anuncios:[{id:1,nombre:"Video Andina",codigo:"AD-1",contrato_id:1}]};
     else if(p==="/api/crm/contratacion/contratos/1")d={contrato:{...contrato,empresa_id:1},configuracion:{piezas:[{clave:"pieza-1",titulo:"Video Andina",descripcion:"Material del contrato",archivos:[],anuncios:[1]}]},prestaciones:[{prestacion:"ANALISIS",cantidad:1},{prestacion:"INFORMES",cantidad:1}],anuncios:[{id:1,codigo:"AD-1",nombre:"Video Andina"}],contenidos:[],historial:[]};
@@ -22,7 +23,7 @@ test("Fases: archivo/reintento, comparación, PDF versionado, acceso y decisión
     else if(/\/versiones\/1\/pdf$/.test(p)){await r.fulfill({contentType:"application/pdf",body:Buffer.from("%PDF-1.4\nBrowser download fixture")});return;}
     else if(p==="/api/crm/entregas/accesos"){if(m==="PUT"){asignaciones++;d=null;}else d={filas:[],usuarios:[{id:12,nombre:"Cliente Andina"}],empresas:[{id:1,nombre:"Andina"}]};}
     else if(p==="/api/crm/entregas/portal")d={empresa:{id:1,nombre:"Andina"},contratos:[contrato]};
-    else if(p==="/api/crm/entregas/portal/contratos/1")d={prestaciones:[{prestacion:"INFORMES",cantidad:1}],anuncios:[],entregables:[],informes:publicado?versiones:[],revisiones:[{id:1,anuncio_id:1,nombre:"Material Andina",codigo:"AD-1",media_id:1,estado:revision,version:0}]};
+    else if(p==="/api/crm/entregas/portal/contratos/1")d={prestaciones:[{prestacion:"INFORMES",cantidad:1},{prestacion:"PUBLICACION",cantidad:1}],anuncios:[],entregables:[],informes:publicado?versiones:[],revisiones:[{id:1,anuncio_id:1,nombre:"Material Andina",codigo:"AD-1",media_id:1,estado:revision,version:0}]};
     else if(p==="/api/crm/entregas/portal/revisiones/1"){revision=r.request().postDataJSON().estado;d=null;}
     await r.fulfill({json:{exito:true,datos:d}});
    });return ctx;
