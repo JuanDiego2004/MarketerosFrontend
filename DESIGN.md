@@ -78,6 +78,10 @@ Rendimiento publicitario reutiliza tarjetas, filtros y diálogos CRM, con iconos
 
 ## Do's and Don'ts
 
+Registro y edición reutilizan `src/componentes/DrawerFormulario.jsx`: panel derecho existente, 560 px para formularios normales, 960 px para el asistente de contratos y ancho completo en móvil. El encabezado permanece visible y el cuerpo desplaza internamente. Usa un diálogo nativo modal para foco, fondo inerte y capas anidadas; conserva el aspecto del drawer y Lucide para cerrar. `DialogoCrm formulario` es un adaptador al mismo componente, no otra superficie. Notas, adjuntos, captación, materiales, versiones PDF y accesos también se abren en el drawer. Confirmaciones y vistas previas conservan el diálogo; filtros, consultas y el editor visual permanecen en su contexto.
+
+El acceso conserva la composición oscura y su escena 3D. `DecoracionLogin` aísla fallos de la escena externa y utiliza `bg_dark.jpg` como respaldo local después de un error o diez segundos sin cargar. La decoración no bloquea ni elimina el formulario.
+
 La contratación contextual usa `AsistenteContrato` para los cinco pasos y `FichaContrato` como centro del servicio. Conserva Crm.css, controles nativos, pasos visibles, DialogoCrm y Lucide React. Materiales, comparación y PDF se presentan en la ficha; `/entregas` es una redirección de compatibilidad. El portal omite producción, pauta y revisión de material en solo análisis. La referencia funcional vigente es `docs/CONTRATACION_CONTEXTUAL.md`.
 
 - Mantener visibles la ruta activa y el foco de teclado.

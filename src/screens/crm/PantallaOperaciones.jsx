@@ -604,7 +604,7 @@ function OperacionesGenerales({ recurso }) {
         )}
       </div>
       {form && !descartar && (
-        <DialogoCrm
+        <DialogoCrm formulario
           titulo={form.id ? `Editar · ${form.nombre}` : `Nuevo registro`}
           cerrar={cerrar}
           ocupado={ocupado}

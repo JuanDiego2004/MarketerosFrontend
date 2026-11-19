@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { X } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import DrawerFormulario from "../DrawerFormulario";
 import {
   guardarCoberturaDashboard,
   obtenerDetalleDashboard,
@@ -35,7 +35,6 @@ export default function EditorGeografia({
   cerrar,
   alGuardar,
 }) {
-  const dialogo = useRef(null);
   const [tab, setTab] = useState(puedeCobertura ? "cobertura" : "resultados");
   const [lugar, setLugar] = useState(INICIAL),
     [ubicacion, setUbicacion] = useState("");
@@ -67,11 +66,6 @@ export default function EditorGeografia({
     (r) =>
       String(r.idMetrica) === metrica && String(r.idUbicacion) === ubicacion,
   );
-  useEffect(() => {
-    const elemento = dialogo.current;
-    elemento.showModal();
-    return () => elemento.close();
-  }, []);
 
   useEffect(() => {
     if (tab !== "resultados" || detalle) return;
@@ -144,29 +138,14 @@ export default function EditorGeografia({
       );
   }
   return (
-    <dialog
-      className="marketing-dialogo"
-      ref={dialogo}
-      onCancel={(e) => {
-        e.preventDefault();
-        if (!ocupado) cerrar();
-      }}
-      aria-labelledby="titulo-geografia"
+    <DrawerFormulario
+      abierto
+      className="marketing-drawer"
+      alCerrar={cerrar}
+      ocupado={ocupado}
+      titulo="Geografía de campaña"
+      descripcion={campana.nombre}
     >
-      <div className="marketing-panel-titulo">
-        <div>
-          <span className="marketing-eyebrow">{campana.nombre}</span>
-          <h2 id="titulo-geografia">Geografía de campaña</h2>
-        </div>
-        <button
-          className="marketing-boton marketing-boton-icono"
-          disabled={ocupado}
-          aria-label="Cerrar geografía"
-          onClick={cerrar}
-        >
-          <X size={18} />
-        </button>
-      </div>
       <div className="marketing-segmentado">
         {puedeCobertura && (
           <button
@@ -376,6 +355,6 @@ export default function EditorGeografia({
           ))}
         </div>
       )}
-    </dialog>
+    </DrawerFormulario>
   );
 }

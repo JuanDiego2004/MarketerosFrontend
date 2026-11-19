@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import Spline from "@splinetool/react-spline";
+import DecoracionLogin from "./DecoracionLogin.jsx";
 import { motion, AnimatePresence } from "motion/react";
 import LoginForm from "./LoginForm.jsx";
 import RegistroForm from "./RegistroForm.jsx";
@@ -17,7 +17,7 @@ const PantallaLogin = () => {
     <div className="w-full h-screen relative flex justify-between items-center bg-black">
       <div className="relative h-screen w-[50%] overflow-hidden bg-black lg:w-[70%]">
         <div className="absolute inset-x-0 top-0 h-[calc(100%+110px)]">
-          <Spline scene="https://prod.spline.design/OqA4aJs2JGF-rfcB/scene.splinecode" />
+          <DecoracionLogin />
         </div>
       </div>
 

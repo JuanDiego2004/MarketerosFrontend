@@ -178,7 +178,7 @@ test(
         .getByRole("dialog")
         .getByRole("button", { name: "Guardar", exact: true })
         .click();
-      await pagina.locator(".marketing-dialogo").waitFor({ state: "detached" });
+      await pagina.getByRole("dialog", {name:"Geografía de campaña",exact:true}).waitFor({ state: "detached" });
       assert(resultadoGuardado.impresiones > 0);
       await pagina.getByRole("button", { name: "Gestionar geografía" }).click();
       await pagina.getByLabel("País", { exact: true }).fill("Ecuador");
@@ -189,7 +189,7 @@ test(
       await pagina
         .getByRole("button", { name: "Guardar", exact: true })
         .click();
-      await pagina.locator(".marketing-dialogo").waitFor({ state: "detached" });
+      await pagina.getByRole("dialog", {name:"Geografía de campaña",exact:true}).waitFor({ state: "detached" });
       assert.equal(coberturaGuardada.ciudad, "Quito");
       assert.equal(coberturaGuardada.latitud, -0.1807);
       assert(

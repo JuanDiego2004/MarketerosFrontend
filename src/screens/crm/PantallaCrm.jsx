@@ -166,6 +166,7 @@ export default function PantallaCrm({ recurso = "contactos" }) {
     });
   }
   function abrir(tipo) {
+    if (tipo === "nota") setNota("");
     setErrorModal("");
     setAbandonar(false);
     setSucio(false);
@@ -289,7 +290,7 @@ export default function PantallaCrm({ recurso = "contactos" }) {
     evento.target.value = "";
     if (!archivo) return;
     if (archivo.size > 5242880) {
-      setError("El adjunto no debe superar 5 MB.");
+      setErrorModal("El adjunto no debe superar 5 MB.");
       return;
     }
     const body = new FormData();
@@ -706,34 +707,7 @@ export default function PantallaCrm({ recurso = "contactos" }) {
                 ))}
               {tab === "Notas" && (
                 <>
-                  {gestionar && (
-                    <form
-                      noValidate
-                      onSubmit={(e) => {
-                        e.preventDefault();
-                        if (nota.trim())
-                          operacion(`/${recurso}/${id}/notas`, "POST", {
-                            texto: nota,
-                          });
-                      }}
-                    >
-                      <label className="crm-campo">
-                        Nueva nota
-                        <textarea
-                          className="resize-none"
-                          maxLength={4000}
-                          value={nota}
-                          onChange={(e) => setNota(e.target.value)}
-                        />
-                      </label>
-                      <button
-                        className="crm-boton mt-3"
-                        disabled={ocupado || !nota.trim()}
-                      >
-                        Añadir nota
-                      </button>
-                    </form>
-                  )}
+                  {gestionar && <button className="crm-boton" onClick={() => abrir("nota")}>Nueva nota</button>}
                   <div className="mt-6">
                     {datos.notas.length ? (
                       datos.notas.map((n) => (
@@ -799,10 +773,7 @@ export default function PantallaCrm({ recurso = "contactos" }) {
               {tab === "Archivos" && (
                 <>
                   {gestionar && (
-                    <label className="crm-campo">
-                      Adjuntar archivo (máximo 5 MB)
-                      <input type="file" disabled={ocupado} onChange={subir} />
-                    </label>
+                    <button className="crm-boton" onClick={() => abrir("archivo")}>Adjuntar archivo</button>
                   )}
                   {datos.archivos.length ? (
                     datos.archivos.map((a) => (
@@ -847,7 +818,7 @@ export default function PantallaCrm({ recurso = "contactos" }) {
         )}
       </div>
       {modal && (
-        <DialogoCrm
+        <DialogoCrm formulario={!abandonar && modal !== "eliminar"}
           titulo={
             abandonar
               ? "¿Descartar los cambios?"
@@ -859,7 +830,7 @@ export default function PantallaCrm({ recurso = "contactos" }) {
                     ? "Revisar importación"
                     : modal === "eliminar"
                       ? (contactos ? "Eliminar registro" : "Archivar empresa")
-                      : "Registrar consentimiento"
+                      : modal === "nota" ? "Nueva nota" : modal === "archivo" ? "Adjuntar archivo" : "Registrar consentimiento"
           }
           cerrar={cerrar}
           ocupado={ocupado}
@@ -977,6 +948,19 @@ export default function PantallaCrm({ recurso = "contactos" }) {
                 >
                   {ocupado ? "Guardando…" : "Guardar"}
                 </button>
+              </div>
+            </form>
+          ) : modal === "archivo" ? (
+            <label className="crm-campo">Adjuntar archivo (máximo 5 MB)<input type="file" disabled={ocupado} onChange={subir}/></label>
+          ) : modal === "nota" ? (
+            <form noValidate className="crm-formulario" onSubmit={e => {
+              e.preventDefault();
+              if (nota.trim()) operacion(`/${recurso}/${id}/notas`, "POST", { texto: nota });
+            }}>
+              <label className="crm-campo crm-ancho">Nueva nota<textarea className="resize-none" maxLength={4000} value={nota} onChange={e => { setNota(e.target.value); setSucio(true); }}/></label>
+              <div className="crm-acciones crm-ancho">
+                <button type="button" className="crm-boton" disabled={ocupado} onClick={cerrar}>Cancelar</button>
+                <button className="crm-boton crm-primario" disabled={ocupado || !nota.trim()}>Añadir nota</button>
               </div>
             </form>
           ) : modal === "eliminar" ? (

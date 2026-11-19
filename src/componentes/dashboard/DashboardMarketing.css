@@ -1,8 +1,11 @@
-.marketing-dashboard {
+.marketing-dashboard,
+.marketing-drawer {
   --marketing-ink: #263c40;
   --marketing-muted: #687e81;
   --marketing-border: #dce5e6;
   color: var(--marketing-ink);
+}
+.marketing-dashboard {
   background: #f6f8f9;
   padding: 30px clamp(18px, 3vw, 44px);
   width: 100%;
@@ -10,7 +13,7 @@
   overflow: auto;
 }
 .marketing-dashboard *,
-.marketing-dialogo * {
+.marketing-drawer * {
   box-sizing: border-box;
 }
 .marketing-contenido[aria-busy="true"] {
@@ -90,12 +93,12 @@
   padding: 10px;
 }
 .marketing-dashboard button:disabled,
-.marketing-dialogo button:disabled {
+.marketing-drawer button:disabled {
   cursor: wait;
   opacity: 0.5;
 }
 .marketing-dashboard :focus-visible,
-.marketing-dialogo :focus-visible {
+.marketing-drawer :focus-visible {
   outline: 2px solid #387d79;
   outline-offset: 3px;
 }
@@ -667,26 +670,6 @@
   padding: 10px 12px;
   max-width: 280px;
 }
-.marketing-dialogo {
-  border: 1px solid #dce5e3;
-  border-radius: 20px;
-  padding: 26px;
-  color: #2d4945;
-  background: #fff;
-  width: min(650px, calc(100vw - 32px));
-  max-height: 90dvh;
-  overflow-y: auto;
-  margin: auto;
-  box-shadow: 0 20px 100px #122c3440;
-}
-.marketing-dialogo::backdrop {
-  background: #233f4d66;
-  backdrop-filter: blur(3px);
-}
-.marketing-dialogo h2 {
-  font-size: 20px;
-  margin-top: 7px;
-}
 .marketing-formulario {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -915,7 +898,7 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .marketing-dashboard *,
-  .marketing-dialogo * {
+  .marketing-drawer * {
     transition: none !important;
     scroll-behavior: auto !important;
   }

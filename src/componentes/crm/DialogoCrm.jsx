@@ -1,7 +1,14 @@
 import { useEffect, useRef } from "react";
 import { X } from "lucide-react";
+import DrawerFormulario from "../DrawerFormulario";
 
-export default function DialogoCrm({
+// Adaptador de la API CRM: todos los registros pertenecen al drawer compartido.
+export default function DialogoCrm({ formulario = false, ...props }) {
+  if (formulario) return <DrawerFormulario abierto alCerrar={props.cerrar} titulo={props.titulo} descripcion={props.descripcion} ocupado={props.ocupado} ancho={props.ancho} className="crm">{props.children}</DrawerFormulario>;
+  return <DialogoConfirmacion {...props} />;
+}
+
+function DialogoConfirmacion({
   titulo,
   cerrar,
   ocupado = false,

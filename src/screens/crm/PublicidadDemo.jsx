@@ -43,8 +43,11 @@ export default function PublicidadDemo() {
   }, [id, desde, hasta, pais, token, revision]);
   useEffect(() => { if (!sucio) return; const avisar = (e) => { e.preventDefault(); e.returnValue = ""; }; window.addEventListener("beforeunload", avisar); return () => window.removeEventListener("beforeunload", avisar); }, [sucio]);
   function filtrar(cambio) {
+    const siguientes = new URLSearchParams(params);
+    Object.entries({ desde, hasta, ...cambio }).forEach(([k, v]) => v ? siguientes.set(k, v) : siguientes.delete(k));
+    if (siguientes.toString() === params.toString()) return;
     setDatos(null); setCargando(true); setError(""); setMensaje("");
-    setParams((prev) => { const p = new URLSearchParams(prev); Object.entries({ desde, hasta, ...cambio }).forEach(([k, v]) => v ? p.set(k, v) : p.delete(k)); return p; });
+    setParams(siguientes);
   }
   async function crear(e) {
     e.preventDefault(); if (ocupado) return;
@@ -103,7 +106,7 @@ export default function PublicidadDemo() {
         <section className="crm-panel"><h2>Detalle diario</h2><div className="crm-scroll"><table><thead><tr>{["Fecha", "Impresiones", "Clics", "Inversión", "CTR", "CPM", "Conversiones"].map((n) => <th key={n} scope="col">{n}</th>)}</tr></thead><tbody>{datos.dias.map((d) => <tr key={d.fecha}><td>{d.fecha}</td><td>{numero(d.impresiones, 0)}</td><td>{numero(d.clics, 0)}</td><td>{numero(d.inversion)} {moneda}</td><td>{numero(d.ctr)} %</td><td>{numero(d.cpm)} {moneda}</td><td>{numero(d.conversiones, 0)}</td></tr>)}</tbody></table></div></section>
       </>}
     </>}
-    {form && !descartar && <DialogoCrm titulo="Vincular campaña" ocupado={ocupado} cerrar={() => sucio ? setDescartar(true) : setForm(null)}><form noValidate className="crm-formulario" onSubmit={crear} onChange={() => setSucio(true)}>
+    {form && !descartar && <DialogoCrm formulario titulo="Vincular campaña" ocupado={ocupado} cerrar={() => sucio ? setDescartar(true) : setForm(null)}><form noValidate className="crm-formulario" onSubmit={crear} onChange={() => setSucio(true)}>
       <label className="crm-campo crm-ancho">Campaña del cliente<select required value={form.campana_id} onChange={(e) => setForm({ ...form, campana_id: e.target.value })}><option value="">Seleccionar campaña</option>{estado.campanas.map((c) => <option key={c.id} value={c.id}>{c.cliente} · {c.nombre}</option>)}</select></label>
       <label className="crm-campo">Plataforma<select required value={form.plataforma} onChange={(e) => setForm({ ...form, plataforma: e.target.value })}>{Object.entries(plataformas).map(([id, nombre]) => <option key={id} value={id}>{nombre}</option>)}</select></label>
       <label className="crm-campo">Moneda<select required value={form.moneda} onChange={(e) => setForm({ ...form, moneda: e.target.value })}><option value="PEN">PEN · Soles</option><option value="USD">USD · Dólares</option></select></label>

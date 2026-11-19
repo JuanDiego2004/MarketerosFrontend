@@ -289,7 +289,7 @@ export default function RelacionesContacto({
         )
       )}
       {modal && !descartar && (
-        <DialogoCrm
+        <DialogoCrm formulario
           titulo={
             modal === "etiquetas"
               ? "Gestionar etiquetas"

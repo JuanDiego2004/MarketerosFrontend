@@ -791,6 +791,7 @@ export default function PantallaAdministracion({ apiBase = "/api/admin" }) {
       />
 
       <DrawerFormulario
+        ocupado={guardando}
         abierto={drawerAbierto}
         alCerrar={cerrarDrawer}
         etiqueta={modulo.titulo}
@@ -821,6 +822,7 @@ export default function PantallaAdministracion({ apiBase = "/api/admin" }) {
             <button
               type="button"
               onClick={cerrarDrawer}
+              disabled={guardando}
               className="h-10 rounded-xl border border-slate-200 px-4 text-xs font-semibold text-slate-600 transition hover:bg-slate-50"
             >
               Cancelar

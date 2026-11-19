@@ -6,6 +6,7 @@ import "./Crm.css";
 import DialogoCrm from "../../componentes/crm/DialogoCrm";
 export default function PanelCaptacion() {
   const { token } = useAuth();
+  const [registrar, setRegistrar] = useState(false);
   const [desactivar, setDesactivar] = useState(null);
   const [campanas, setCampanas] = useState([]),
     [campana, setCampana] = useState("");
@@ -64,6 +65,7 @@ export default function PanelCaptacion() {
         }),
       );
       setNombre("");
+      setRegistrar(false);
       setRevision((n) => n + 1);
     } catch (e) {
       setError(e.message);
@@ -85,7 +87,7 @@ export default function PanelCaptacion() {
           </p>
         </div>
       </header>
-      {error && (
+      {error && !registrar && (
         <p className="crm-error" role="alert">
           {error}
         </p>
@@ -95,7 +97,10 @@ export default function PanelCaptacion() {
           {mensaje}
         </p>
       )}
-      <form noValidate className="crm-panel crm-formulario" onSubmit={crear}>
+      <button className="crm-boton crm-primario" onClick={()=>setRegistrar(true)}><Plus size={16}/>Nuevo formulario</button>
+      <label className="crm-campo">Campaña para consultar<select value={campana} onChange={e=>{setCampana(e.target.value);setFormularios([]);setCargando(true);setNuevo(null);}}><option value="">Seleccionar campaña</option>{campanas.map(c=><option key={c.id} value={c.id}>{c.nombre}</option>)}</select></label>
+      {registrar && <DialogoCrm formulario titulo="Crear formulario de captación" ocupado={ocupado} cerrar={()=>setRegistrar(false)}>
+      <form noValidate className="crm-formulario" onSubmit={crear}>
         <label className="crm-campo">
           Campaña
           <select
@@ -127,7 +132,9 @@ export default function PanelCaptacion() {
           <Plus size={16} />
           Crear formulario
         </button>
-      </form>
+        <button type="button" className="crm-boton" disabled={ocupado} onClick={()=>setRegistrar(false)}>Cancelar</button>
+      {error && <p role="alert" className="crm-error crm-ancho">{error}</p>}
+      </form></DialogoCrm>}
       {nuevo && (
         <div className="crm-panel">
           <h2>Formulario creado</h2>

@@ -12,11 +12,13 @@ async function solicitar(ruta, token, opciones = {}) {
   });
   if (!respuesta.ok) {
     const cuerpo = await respuesta.json().catch(() => ({}));
-    throw new Error(
+    const error = new Error(
       cuerpo.error?.mensaje ||
         cuerpo.mensaje ||
         `Error HTTP ${respuesta.status}`,
     );
+    error.status = respuesta.status;
+    throw error;
   }
   if (respuesta.status === 204) return null;
   const resultado = await respuesta.json();
@@ -96,7 +98,8 @@ export const listarModuloAdministrador = (
   modulo,
   token,
   apiBase = "/api/admin",
-) => solicitar(`${apiBase}/${modulo}`, token);
+  opciones = {},
+) => solicitar(`${apiBase}/${modulo}`, token, opciones);
 export const guardarModuloAdministrador = (
   modulo,
   datos,
