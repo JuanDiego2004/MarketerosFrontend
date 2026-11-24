@@ -32,7 +32,7 @@ export default function PortalCliente() {
   }, [token, revision]);
   const contrato = datos?.contratos.find((c) => String(c.id) === id);
   return (
-    <main className="crm portal-analitica">
+    <main className="crm portal-analitica dashboard-inmersivo">
       <header className="portal-cabecera">
         <div>
           <span className="portal-eyebrow">PORTAL DEL CLIENTE</span>

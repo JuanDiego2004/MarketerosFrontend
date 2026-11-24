@@ -5,7 +5,7 @@
 - Ruta protegida `/portal`, rol `CLIENTE`, sesión de `ContextoAuth` y JWT de Supabase obtenido por el backend.
 - `PortalCliente.jsx` conserva los contratos y servicios. `EntregasContratoCliente.jsx` reutiliza la vista previa, decisiones e informes versionados que ya existían.
 - `AnaliticaCliente.jsx` consulta las estadísticas existentes en `crm_anuncio_metrica`. No genera estadísticas ni llama a plataformas publicitarias.
-- Se reutiliza `GloboCampanas` / `react-globe.gl`, con países de Natural Earth 1:110m (datos geográficos públicos, ~199 KB). El renderizador carga de forma diferida, limita la densidad de píxeles, se detiene en reposo o fuera de pantalla y se reanuda al interactuar. Si falta WebGL, ofrece un mapa SVG con los mismos filtros y resultados.
+- Se reutiliza `GloboCampanas` / `react-globe.gl`, con países de Natural Earth 1:110m (datos geográficos públicos, ~199 KB). El renderizador carga de forma diferida y ajusta su resolución al tamaño del lienzo. Si falta WebGL, ofrece un mapa SVG con los mismos filtros y resultados.
 - No se añadieron tablas de negocio. `crm-v14.sql` incorpora una consulta y políticas sobre las relaciones actuales de empresas, contratos, cuentas, campañas y anuncios.
 
 ## Aplicar el SQL manualmente en Supabase
@@ -35,6 +35,20 @@ La primera consulta debe devolver `crm_portal_ids = true` y `crm_portal_estadist
 Alternativa por JDBC con las credenciales habituales de despliegue, sin pegarlas en el código: el script existente `scripts/PrepararCrm.java` admite `--portal-analitica` para inventario y `--portal-analitica --aplicar` para aplicar solo esta migración.
 
 ## Permisos y agregaciones
+
+### Escena de cliente y administrador
+
+`EscenaGlobo.css` comparte el lienzo a todo el ancho y los paneles superpuestos en ambos dashboards. El zoom amplía el planeta detrás de las tarjetas. La tabla del cliente, los detalles, entregas e informes permanecen fuera de la escena.
+
+El mundo gira automáticamente y ofrece pausa, reanudación, acercar, alejar y restablecer. La selección y el arrastre pausan el giro; restablecer la vista conserva el estado de pausa elegido. Se respeta la preferencia de movimiento reducido y se suspende el renderizado en pestañas ocultas o fuera de pantalla. El dibujo usa una resolución menor mientras se mueve; en reposo se dibuja una imagen más nítida y se detiene.
+
+Las señales muestran etiquetas y flechas sobre lugares existentes: países con resultados para el cliente y ubicaciones de las campañas para el administrador. Las etiquetas cercanas se distribuyen, las de la cara posterior se ocultan y sus textos evitan los paneles y otras etiquetas. Esto no modifica puntos, países ni estadísticas.
+
+`PanelGlobo` conserva las tarjetas superpuestas en escritorio y las convierte en paneles plegables en móvil. Esta adaptación reutiliza las consultas y permisos actuales y no requiere otra migración SQL.
+
+Pruebas específicas: `pnpm run test:globo` y, con `CRM_UI_URL` apuntando al servidor local, `pnpm run test:globo:ui`.
+
+### Datos
 
 - El navegador usa la clave publicable y el JWT de su sesión actual. No hay `service_role` en el frontend, sesiones adicionales ni un identificador de empresa controlable desde los filtros.
 - `crm_portal_ids` resuelve la empresa desde `auth.uid()`, usuario activo, rol Cliente y acceso activo. Valida también que la cuenta del anuncio, su contrato de origen y la campaña pertenezcan a esa empresa.

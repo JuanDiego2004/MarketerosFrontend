@@ -15,6 +15,7 @@ import { useAuth } from "../../contexto/ContextoAuth";
 import { obtenerMarketingDashboard } from "../../servicios/servicioAdministrador";
 import { GRUPOS_ROL, obtenerGrupoRol } from "../../utils/roles";
 import GloboCampanas from "./GloboCampanas";
+import PanelGlobo from "./PanelGlobo";
 import EditorGeografia from "./EditorGeografia";
 import ResumenCrmDashboard from "./ResumenCrmDashboard";
 import { crearDemostracion } from "./demostracionMarketing";
@@ -297,7 +298,7 @@ export default function DashboardMarketing({ apiBase = "/api/admin" }) {
   const listo = datos && rangoValido && (demo || !error);
 
   return (
-    <main className="marketing-dashboard">
+    <main className="marketing-dashboard dashboard-inmersivo">
       <header className="marketing-cabecera">
         <div>
           <span className="marketing-eyebrow">Marketing intelligence</span>
@@ -466,7 +467,7 @@ export default function DashboardMarketing({ apiBase = "/api/admin" }) {
               </button>
             )}
           </div>
-          <section className="marketing-escenario">
+          <section className="marketing-escenario escena-globo escena-globo-admin">
             <div className="marketing-mapa">
               <div className="marketing-mapa-titulo">
                 <span className="marketing-eyebrow">
@@ -484,12 +485,20 @@ export default function DashboardMarketing({ apiBase = "/api/admin" }) {
                 </button>
               </div>
               <GloboCampanas
+                temaClaro
+                alRestablecer={() => {
+                  limpiarSeleccion();
+                  setReinicio((v) => v + 1);
+                }}
                 puntos={puntos}
                 seleccionado={campana?.idCampana}
                 alSeleccionar={seleccionarPunto}
                 reinicio={reinicio}
               />
-              <div className="marketing-kpis-flotantes">
+              <PanelGlobo
+                titulo="Indicadores"
+                className="marketing-kpis-flotantes"
+              >
                 <Tarjeta
                   titulo="Inversión del período"
                   valor={dinero(totales.inversion)}
@@ -513,7 +522,45 @@ export default function DashboardMarketing({ apiBase = "/api/admin" }) {
                     ayuda="Ingresos / inversión"
                   />
                 </div>
-              </div>
+                <section className="marketing-kpis-secundarios">
+                  <Tarjeta
+                    titulo="Clics"
+                    valor={numero(totales.clics)}
+                    ayuda="Tráfico registrado"
+                  />
+                  <Tarjeta
+                    titulo="CTR"
+                    valor={mostrarKpi(totales.ctr, "%")}
+                    ayuda="Clics / impresiones"
+                  />
+                  <Tarjeta
+                    titulo="CPC"
+                    valor={
+                      totales.cpc == null ? "Sin datos" : dinero(totales.cpc)
+                    }
+                    ayuda="Inversión / clics"
+                  />
+                  <Tarjeta
+                    titulo="CPM"
+                    valor={
+                      totales.cpm == null ? "Sin datos" : dinero(totales.cpm)
+                    }
+                    ayuda="Costo por mil impresiones"
+                  />
+                  <Tarjeta
+                    titulo="Conversiones"
+                    valor={numero(totales.conversiones)}
+                    ayuda="Objetivos registrados"
+                  />
+                  <Tarjeta
+                    titulo="CPA"
+                    valor={
+                      totales.cpa == null ? "Sin datos" : dinero(totales.cpa)
+                    }
+                    ayuda="Inversión / conversiones"
+                  />
+                </section>
+              </PanelGlobo>
               <div className="marketing-mapa-pie">
                 <div
                   className="marketing-segmentado"
@@ -542,85 +589,94 @@ export default function DashboardMarketing({ apiBase = "/api/admin" }) {
                 </span>
               </div>
             </div>
-            <aside className="marketing-panel marketing-listado">
-              <div className="marketing-panel-titulo">
-                <div>
-                  <span className="marketing-eyebrow">Tu actividad</span>
-                  <h2>
-                    Campañas{" "}
-                    <span className="marketing-contador">
-                      {campanas.length}
+            <PanelGlobo
+              titulo="Campañas"
+              etiqueta="Campañas y tendencias"
+              className="marketing-rail"
+            >
+              <GraficoEvolucion filas={metricas} />
+              <aside className="marketing-panel marketing-listado">
+                <div className="marketing-panel-titulo">
+                  <div>
+                    <span className="marketing-eyebrow">Tu actividad</span>
+                    <h2>
+                      Campañas{" "}
+                      <span className="marketing-contador">
+                        {campanas.length}
+                      </span>
+                    </h2>
+                  </div>
+                  <SlidersHorizontal size={17} />
+                </div>
+                {grupo && (
+                  <div className="marketing-grupo">
+                    <MapPin size={14} />
+                    <span>
+                      {grupo.lugares.map((u) => u.ciudad || u.pais).join(" · ")}
                     </span>
-                  </h2>
-                </div>
-                <SlidersHorizontal size={17} />
-              </div>
-              {grupo && (
-                <div className="marketing-grupo">
-                  <MapPin size={14} />
-                  <span>
-                    {grupo.lugares.map((u) => u.ciudad || u.pais).join(" · ")}
-                  </span>
-                  <button
-                    aria-label="Quitar filtro de grupo"
-                    onClick={() => setGrupo(null)}
-                  >
-                    <X size={14} />
-                  </button>
-                </div>
-              )}
-              <div className="marketing-campanas-scroll">
-                {listado.length ? (
-                  listado.map((c) => {
-                    const tieneUbicacion = datos.ubicaciones.some(
-                      (u) => String(u.idCampana) === String(c.idCampana),
-                    );
-                    return (
-                      <button
-                        key={c.idCampana}
-                        className={`marketing-campana ${String(c.idCampana) === String(campana?.idCampana) ? "seleccionada" : ""}`}
-                        aria-pressed={
-                          String(c.idCampana) === String(campana?.idCampana)
-                        }
-                        onClick={() => seleccionarCampana(c.idCampana)}
-                      >
-                        <span className="marketing-campana-estado">
-                          <i style={{ background: COLORES_ESTADO[c.estado] }} />
-                          {etiquetaEstado(c.estado)}
-                          <small>{c.canal}</small>
-                        </span>
-                        <strong>{c.nombre}</strong>
-                        <span className="marketing-campana-cliente">
-                          {c.cliente}
-                          <ChevronRight size={15} />
-                        </span>
-                        {!tieneUbicacion && (
-                          <small className="marketing-sin-ubicacion">
-                            Sin ubicación
-                          </small>
-                        )}
-                      </button>
-                    );
-                  })
-                ) : (
-                  <p className="marketing-vacio">
-                    No hay campañas que coincidan con los filtros.
-                  </p>
+                    <button
+                      aria-label="Quitar filtro de grupo"
+                      onClick={() => setGrupo(null)}
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
                 )}
-              </div>
-              <div className="marketing-leyenda">
-                {Object.entries(COLORES_ESTADO).map(([estado, color]) => (
-                  <span key={estado}>
-                    <i style={{ background: color }} />
-                    {etiquetaEstado(estado)}
-                  </span>
-                ))}
-                <small>
-                  El número indica campañas únicas. En Resultados, el tamaño
-                  también refleja impresiones.
-                </small>
-              </div>
-            </aside>
+                <div className="marketing-campanas-scroll">
+                  {listado.length ? (
+                    listado.map((c) => {
+                      const tieneUbicacion = datos.ubicaciones.some(
+                        (u) => String(u.idCampana) === String(c.idCampana),
+                      );
+                      return (
+                        <button
+                          key={c.idCampana}
+                          className={`marketing-campana ${String(c.idCampana) === String(campana?.idCampana) ? "seleccionada" : ""}`}
+                          aria-pressed={
+                            String(c.idCampana) === String(campana?.idCampana)
+                          }
+                          onClick={() => seleccionarCampana(c.idCampana)}
+                        >
+                          <span className="marketing-campana-estado">
+                            <i
+                              style={{ background: COLORES_ESTADO[c.estado] }}
+                            />
+                            {etiquetaEstado(c.estado)}
+                            <small>{c.canal}</small>
+                          </span>
+                          <strong>{c.nombre}</strong>
+                          <span className="marketing-campana-cliente">
+                            {c.cliente}
+                            <ChevronRight size={15} />
+                          </span>
+                          {!tieneUbicacion && (
+                            <small className="marketing-sin-ubicacion">
+                              Sin ubicación
+                            </small>
+                          )}
+                        </button>
+                      );
+                    })
+                  ) : (
+                    <p className="marketing-vacio">
+                      No hay campañas que coincidan con los filtros.
+                    </p>
+                  )}
+                </div>
+                <div className="marketing-leyenda">
+                  {Object.entries(COLORES_ESTADO).map(([estado, color]) => (
+                    <span key={estado}>
+                      <i style={{ background: color }} />
+                      {etiquetaEstado(estado)}
+                    </span>
+                  ))}
+                  <small>
+                    El número indica campañas únicas. En Resultados, el tamaño
+                    también refleja impresiones.
+                  </small>
+                </div>
+              </aside>
+            </PanelGlobo>
           </section>
           {campana && (
             <section
@@ -698,40 +754,7 @@ export default function DashboardMarketing({ apiBase = "/api/admin" }) {
               )}
             </section>
           )}
-          <section className="marketing-kpis-secundarios">
-            <Tarjeta
-              titulo="Clics"
-              valor={numero(totales.clics)}
-              ayuda="Tráfico registrado"
-            />
-            <Tarjeta
-              titulo="CTR"
-              valor={mostrarKpi(totales.ctr, "%")}
-              ayuda="Clics / impresiones"
-            />
-            <Tarjeta
-              titulo="CPC"
-              valor={totales.cpc == null ? "Sin datos" : dinero(totales.cpc)}
-              ayuda="Inversión / clics"
-            />
-            <Tarjeta
-              titulo="CPM"
-              valor={totales.cpm == null ? "Sin datos" : dinero(totales.cpm)}
-              ayuda="Costo por mil impresiones"
-            />
-            <Tarjeta
-              titulo="Conversiones"
-              valor={numero(totales.conversiones)}
-              ayuda="Objetivos registrados"
-            />
-            <Tarjeta
-              titulo="CPA"
-              valor={totales.cpa == null ? "Sin datos" : dinero(totales.cpa)}
-              ayuda="Inversión / conversiones"
-            />
-          </section>
           <section className="marketing-graficos">
-            <GraficoEvolucion filas={metricas} />
             <article className="marketing-panel">
               <div className="marketing-panel-titulo">
                 <div>

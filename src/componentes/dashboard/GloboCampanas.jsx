@@ -1,4 +1,5 @@
-import { Component, lazy, Suspense } from "react";
+import { Component, lazy, Suspense, useEffect, useState } from "react";
+import "./EscenaGlobo.css";
 const GloboInteractivo = lazy(() => import("./GloboInteractivo"));
 
 class LimiteGlobo extends Component {
@@ -19,6 +20,24 @@ class LimiteGlobo extends Component {
 }
 
 export default function GloboCampanas(props) {
+  const [geografia, setGeografia] = useState([]);
+  const necesitaGeografia = props.temaClaro !== false && !props.regiones;
+  useEffect(() => {
+    if (!necesitaGeografia) return;
+    const control = new AbortController();
+    fetch("/mapa/paises-110m.geojson", { signal: control.signal })
+      .then((r) => {
+        if (!r.ok) throw new Error("Geografía no disponible");
+        return r.json();
+      })
+      .then((d) => {
+        if (!control.signal.aborted) setGeografia(d.features);
+      })
+      .catch(() => {
+        /* Los puntos y la lista permanecen disponibles si falta la cartografía. */
+      });
+    return () => control.abort();
+  }, [necesitaGeografia]);
   return (
     <LimiteGlobo alternativa={props.alternativa}>
       <Suspense
@@ -28,7 +47,7 @@ export default function GloboCampanas(props) {
           </p>
         }
       >
-        <GloboInteractivo {...props} />
+        <GloboInteractivo {...props} regiones={props.regiones || geografia} />
       </Suspense>
     </LimiteGlobo>
   );

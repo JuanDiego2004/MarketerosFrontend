@@ -13,7 +13,9 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test:portal": "node --test tests/analitica-portal.test.mjs tests/portal-rls.test.mjs",
-    "test:portal:ui": "node --test tests/portal-analitica-navegador.test.mjs"
+    "test:portal:ui": "node --test tests/portal-analitica-navegador.test.mjs",
+    "test:globo": "node --test tests/senales-globo.test.mjs",
+    "test:globo:ui": "node --test --test-concurrency=1 tests/escena-globo-navegador.test.mjs"
   },
   "dependencies": {
     "@splinetool/react-spline": "^4.1.0",

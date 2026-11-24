@@ -8,6 +8,7 @@ import {
   X,
 } from "lucide-react";
 import GloboCampanas from "../dashboard/GloboCampanas";
+import PanelGlobo from "../dashboard/PanelGlobo";
 import GraficoCliente from "./GraficoCliente";
 import TablaResultadosCliente from "./TablaResultadosCliente";
 import MapaPaisesAlternativo from "./MapaPaisesAlternativo";
@@ -92,6 +93,11 @@ export default function AnaliticaCliente({
             ...r.properties,
             color: colorValor(valor, maximo),
             conDatos: valor != null,
+            valor: valor || 0,
+            etiquetaValor:
+              valor == null
+                ? "Sin resultados"
+                : `${METRICAS_MAPA[metrica]} · ${metrica === "inversion" ? importe(valor, monedaMapa) : numero(valor)}`,
             tooltip: `${r.properties.nombre} · ${valor == null ? "Sin resultados en este filtro" : `${METRICAS_MAPA[metrica]}: ${metrica === "inversion" ? importe(valor, monedaMapa) : numero(valor)}`}`,
           },
         };
@@ -414,10 +420,11 @@ export default function AnaliticaCliente({
               </div>
             </div>
           )}
-          <div className="portal-panel-principal">
-            <aside
+          <div className="portal-panel-principal escena-globo escena-globo-cliente">
+            <PanelGlobo
+              titulo="Indicadores"
               className="portal-kpis"
-              aria-label="Indicadores publicitarios"
+              etiqueta="Indicadores publicitarios"
             >
               <div className="portal-titulo-panel">
                 <span>RENDIMIENTO</span>
@@ -463,7 +470,7 @@ export default function AnaliticaCliente({
                 valor="—"
                 detalle="Sin ingresos y costos verificados"
               />
-            </aside>
+            </PanelGlobo>
             <section className="portal-mapa" aria-label="Resultados por país">
               <div className="portal-mapa-cabecera">
                 <div>
@@ -503,6 +510,8 @@ export default function AnaliticaCliente({
                       />
                     }
                     temaClaro
+                    modoPaises
+                    alRestablecer={() => cambiar("pais", "")}
                     regiones={regiones}
                     regionSeleccionada={filtros.pais}
                     alSeleccionarRegion={(p) => cambiar("pais", p)}
@@ -558,9 +567,10 @@ export default function AnaliticaCliente({
                 )}
               </div>
             </section>
-            <aside
+            <PanelGlobo
+              titulo="Tendencias"
               className="portal-tendencias"
-              aria-label="Tendencias de resultados"
+              etiqueta="Tendencias de resultados"
             >
               <GraficoCliente
                 titulo="Impresiones"
@@ -592,7 +602,7 @@ export default function AnaliticaCliente({
                   Ingresos simulados, sin retorno verificado.
                 </p>
               </section>
-            </aside>
+            </PanelGlobo>
           </div>
           <TablaResultadosCliente
             filas={filas}
