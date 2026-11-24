@@ -52,6 +52,8 @@ export default function GloboInteractivo({
       if (preferencia.matches) setGirando(false);
     };
     preferencia.addEventListener("change", cambiar);
+    // La preferencia puede cambiar entre el primer render y la suscripción.
+    cambiar();
     return () => preferencia.removeEventListener("change", cambiar);
   }, []);
   useEffect(() => {

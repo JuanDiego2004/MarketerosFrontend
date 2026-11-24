@@ -21,6 +21,7 @@ import { operaciones, etiquetas } from "./configuracionOperaciones";
 import "./Crm.css";
 import AlertasMetas from "./AlertasMetas";
 import CalendarioActividades from "./CalendarioActividades";
+import Pestanas from "../../componentes/ui/Pestanas";
 import CanalesCrm from "./CanalesCrm";
 
 const fechaLocal = (v) =>
@@ -349,24 +350,11 @@ function OperacionesGenerales({ recurso }) {
               Configurar etapas
             </Link>
           )}
-          <button
-            className="crm-boton"
-            onClick={() => cambiarParams("vista", "tablero")}
-          >
-            <Columns3 size={16} />
-            Tablero
-          </button>
-          <button
-            className="crm-boton"
-            onClick={() => cambiarParams("vista", "lista")}
-          >
-            <List size={16} />
-            Lista
-          </button>
+          <Pestanas etiqueta="Vista del pipeline" opciones={[{valor:"tablero", etiqueta:"Tablero", icono:Columns3}, {valor:"lista", etiqueta:"Lista", icono:List}]} valor={vista} alCambiar={(v) => cambiarParams("vista", v)} />
         </div>
       )}
       {recurso === "actividades" && (
-        <>
+        <div className="crm-vistas-fila">
           <label className="crm-campo">
             Mostrar
             <select
@@ -380,22 +368,7 @@ function OperacionesGenerales({ recurso }) {
               <option value="propias">Mis tareas</option>
             </select>
           </label>
-          <div className="crm-acciones">
-            <button
-              className="crm-boton"
-              onClick={() => cambiarParams("vista", "calendario")}
-            >
-              <CalendarDays size={16} />
-              Calendario semanal
-            </button>
-            <button
-              className="crm-boton"
-              onClick={() => cambiarParams("vista", "lista")}
-            >
-              <List size={16} />
-              Lista
-            </button>
-          </div>
+          <Pestanas etiqueta="Vista de actividades" opciones={[{valor:"calendario", etiqueta:"Calendario semanal", icono:CalendarDays}, {valor:"lista", etiqueta:"Lista", icono:List}]} valor={vista} alCambiar={(v) => cambiarParams("vista", v)} />
           {vencidas.length > 0 && (
             <div className="crm-error" role="status">
               Tienes {vencidas.length} tareas pendientes vencidas.{" "}
@@ -405,7 +378,7 @@ function OperacionesGenerales({ recurso }) {
                 .join(" · ")}
             </div>
           )}
-        </>
+        </div>
       )}
       {error && !form && (
         <div className="crm-error" role="alert">

@@ -1,213 +1,96 @@
-import { useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { motion, useReducedMotion } from "motion/react";
+import { AnimatePresence, LayoutGroup, motion, useReducedMotion } from "motion/react";
+import { ChartPie, ChevronDown, LogOut, PanelLeftClose, PanelLeftOpen, X } from "lucide-react";
 import { useAuth } from "../../contexto/ContextoAuth.jsx";
-import { ChartPie as PieChartFill, ChevronDown, LogOut } from "lucide-react";
-import { obtenerModulos, sidebarVariants, textoVariants } from "./funciones.js";
+import { obtenerModulos } from "./funciones.js";
+import "./Sidebar.css";
 
-export default function Sidebar() {
+export default function Sidebar({ movilAbierto = false, cerrarMovil }) {
   const { usuario, cerrarSesion } = useAuth();
   const navegar = useNavigate();
   const { pathname } = useLocation();
-  const [abierto, setAbierto] = useState(false);
+  const [compacto, setCompacto] = useState(() => localStorage.getItem("menuCompacto") === "true");
+  const [movil, setMovil] = useState(() => matchMedia("(max-width: 767px)").matches);
   const [seleccion, setSeleccion] = useState({ ruta: pathname, id: undefined });
   const reducirMovimiento = useReducedMotion();
-  const variantesTexto = reducirMovimiento
-    ? { cerrado: { opacity: 0, width: 0 }, abierto: { opacity: 1, width: 180 } }
-    : textoVariants;
-
+  const contenedor = useRef(null);
+  const id = useId();
+  const abierto = movil || !compacto;
   const grupos = obtenerModulos(usuario?.rol?.nombreRol);
-  const grupoActivo = grupos.find((grupo) =>
-    grupo.enlaces.some(
-      (enlace) =>
-        enlace.ruta === pathname || pathname.startsWith(`${enlace.ruta}/`),
-    ),
-  );
-  const grupoExpandido =
-    seleccion.ruta === pathname && seleccion.id !== undefined
-      ? seleccion.id
-      : grupoActivo?.id;
+  const grupoActivo = grupos.find((g) => g.enlaces.some((e) => e.ruta === pathname || pathname.startsWith(`${e.ruta}/`)));
+  const grupoExpandido = seleccion.ruta === pathname && seleccion.id !== undefined ? seleccion.id : grupoActivo?.id;
 
+  useEffect(() => {
+    const medio = matchMedia("(max-width: 767px)");
+    const actualizar = () => setMovil(medio.matches);
+    medio.addEventListener("change", actualizar);
+    return () => medio.removeEventListener("change", actualizar);
+  }, []);
+  useEffect(() => {
+    if (movil && movilAbierto) contenedor.current?.querySelector("button")?.focus();
+  }, [movil, movilAbierto]);
+
+  function alternar() {
+    setCompacto((valor) => {
+      localStorage.setItem("menuCompacto", String(!valor));
+      return !valor;
+    });
+  }
   function salir() {
     cerrarSesion();
     navegar("/login", { replace: true });
   }
+  function recorrerMenu(evento) {
+    if (!movil || !movilAbierto) return;
+    if (evento.key === "Escape") { evento.preventDefault(); cerrarMovil?.(); }
+    if (evento.key !== "Tab") return;
+    const opciones = [...contenedor.current.querySelectorAll("a[href], button:not(:disabled)")].filter((e) => e.getClientRects().length);
+    const primero = opciones[0], ultimo = opciones.at(-1);
+    if (evento.shiftKey && document.activeElement === primero) { evento.preventDefault(); ultimo?.focus(); }
+    else if (!evento.shiftKey && document.activeElement === ultimo) { evento.preventDefault(); primero?.focus(); }
+  }
+  const indicador = (activo) => activo && <motion.span className="sidebar-seleccion" layoutId={`seleccion-${id}`} transition={reducirMovimiento ? { duration: 0 } : { type: "spring", stiffness: 380, damping: 36 }} />;
 
   return (
-    <motion.aside
-      variants={sidebarVariants}
-      initial="cerrado"
-      animate={abierto ? "abierto" : "cerrado"}
-      onMouseEnter={() => setAbierto(true)}
-      onMouseLeave={(evento) => {
-        if (!evento.currentTarget.contains(document.activeElement))
-          setAbierto(false);
-      }}
-      onFocusCapture={() => setAbierto(true)}
-      onBlurCapture={(evento) => {
-        if (!evento.currentTarget.contains(evento.relatedTarget))
-          setAbierto(false);
-      }}
-      transition={{
-        width: {
-          duration: reducirMovimiento ? 0 : 0.3,
-          ease: [0.22, 1, 0.36, 1],
-        },
-      }}
-      className="
-        sticky top-0 flex h-screen shrink-0 flex-col
-        overflow-hidden bg-black p-2 text-white
-      "
-    >
-      <div className="mb-8 flex h-12 shrink-0 items-center gap-3">
-        <div
-          className="
-            flex h-10 w-10 shrink-0 items-center justify-center
-            rounded-full  font-bold
-          "
-        >
-          <PieChartFill size={30} strokeWidth={1.75} aria-hidden="true" />
-          {/* {usuario?.nombres?.charAt(0)?.toUpperCase() ?? 'U'} */}
+    <LayoutGroup id={id}>
+      <motion.aside ref={contenedor} className="sidebar" aria-label="Menú del sistema" data-compacto={!abierto} data-movil-abierto={movilAbierto} inert={movil && !movilAbierto ? true : undefined} initial={false} animate={{ width: movil ? 280 : compacto ? 76 : 252 }} transition={{ duration: reducirMovimiento ? 0 : 0.26, ease: [0.22, 1, 0.36, 1] }} onKeyDown={recorrerMenu}>
+        <div className="sidebar-marca">
+          <span className="sidebar-isotipo"><ChartPie size={25} strokeWidth={1.8} aria-hidden="true" /></span>
+          <div className="sidebar-texto"><strong>Marketing<span>System</span></strong><small>Tu agencia, conectada.</small></div>
+          <button type="button" className="sidebar-cerrar-movil" onClick={cerrarMovil} aria-label="Cerrar menú"><X size={19} /></button>
         </div>
-
-        <motion.div
-          variants={variantesTexto}
-          className="overflow-hidden whitespace-nowrap"
-        >
-          <p className="font-semibold">{usuario?.nombres}</p>
-          <p className="text-sm text-gray-400">
-            {usuario?.rol?.nombreRol ?? "Sin rol"}
-          </p>
-        </motion.div>
-      </div>
-
-      <nav
-        aria-label="Navegación principal"
-        className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto"
-      >
-        {grupos.map((grupo) => {
-          const Icono = grupo.icono;
-          const esDashboard = grupo.id === "inicio";
-          const activo = grupo.id === grupoActivo?.id;
-          const expandido = abierto && grupo.id === grupoExpandido;
-          const clasesGrupo = `flex h-10 w-full shrink-0 items-center gap-3 rounded-lg px-2 text-left transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-white ${
-            activo && (esDashboard || !abierto)
-              ? "bg-blue-700 text-white"
-              : "text-gray-300 hover:bg-gray-800"
-          }`;
-
-          return (
-            <div key={grupo.id} className="shrink-0">
-              {esDashboard ? (
-                <NavLink
-                  to={grupo.enlaces[0].ruta}
-                  aria-label={grupo.nombre}
-                  className={clasesGrupo}
-                >
-                  <span className="flex w-6 shrink-0 items-center justify-center">
-                    <Icono size={21} strokeWidth={1.75} aria-hidden="true" />
-                  </span>
-                  <motion.span
-                    variants={variantesTexto}
-                    className="overflow-hidden whitespace-nowrap font-inter text-sm"
-                  >
-                    {grupo.nombre}
-                  </motion.span>
-                </NavLink>
-              ) : (
-                <>
-                  <button
-                    type="button"
-                    aria-label={grupo.nombre}
-                    aria-expanded={expandido}
-                    aria-controls={`sidebar-${grupo.id}`}
-                    onClick={() => {
-                      setAbierto(true);
-                      setSeleccion({
-                        ruta: pathname,
-                        id:
-                          !abierto || grupoExpandido !== grupo.id
-                            ? grupo.id
-                            : null,
-                      });
-                    }}
-                    className={clasesGrupo}
-                  >
-                    <span className="flex w-6 shrink-0 items-center justify-center">
-                      <Icono size={21} strokeWidth={1.75} aria-hidden="true" />
-                    </span>
-                    <motion.span
-                      variants={variantesTexto}
-                      className="min-w-0 flex-1 overflow-hidden whitespace-nowrap font-inter text-sm"
-                    >
-                      {grupo.nombre}
-                    </motion.span>
-                    {abierto && (
-                      <ChevronDown
-                        size={16}
-                        aria-hidden="true"
-                        className={`transition-transform ${expandido ? "rotate-180" : ""}`}
-                      />
-                    )}
-                  </button>
-                  <div
-                    id={`sidebar-${grupo.id}`}
-                    hidden={!expandido}
-                    className="ml-9 space-y-0.5 border-l border-white/15 pl-2"
-                  >
-                    {grupo.enlaces.map((enlace) => (
-                      <NavLink
-                        key={enlace.ruta}
-                        to={enlace.ruta}
-                        className={({ isActive }) =>
-                          `block rounded-md px-2 py-2 text-xs font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-white ${
-                            isActive
-                              ? "bg-blue-700 text-white"
-                              : "text-gray-300 hover:bg-gray-800"
-                          }`
-                        }
-                      >
-                        {enlace.nombre}
-                      </NavLink>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
-          );
-        })}
-
-        {grupos.length === 0 && (
-          <motion.p
-            variants={variantesTexto}
-            className="overflow-hidden whitespace-nowrap text-sm text-gray-400"
-          >
-            No hay módulos asignados para este rol.
-          </motion.p>
-        )}
-      </nav>
-
-      <button
-        type="button"
-        onClick={salir}
-        title="Cerrar sesión"
-        aria-label="Cerrar sesión"
-        className="
-          mt-4 flex h-12 shrink-0 items-center gap-3 rounded-lg
-          px-3 text-left text-gray-300 hover:bg-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white
-        "
-      >
-        <span className="flex w-6 shrink-0 items-center justify-center text-xl">
-          <LogOut size={20} aria-hidden="true" />
-        </span>
-
-        <motion.span
-          variants={variantesTexto}
-          className="overflow-hidden whitespace-nowrap"
-        >
-          Cerrar sesión
-        </motion.span>
-      </button>
-    </motion.aside>
+        <div className="sidebar-espacio"><span className="sidebar-espacio-icono">M</span><div className="sidebar-texto"><strong>Mi agencia</strong><small>Espacio de trabajo</small></div></div>
+        <div className="sidebar-nav-cabecera"><span className="sidebar-texto">PRINCIPAL</span><button type="button" onClick={alternar} className="sidebar-alternar" aria-label={compacto ? "Expandir menú" : "Contraer menú"} title={compacto ? "Expandir menú" : "Contraer menú"}>{compacto ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}</button></div>
+        <nav className="sidebar-nav" aria-label="Navegación principal">
+          {grupos.map((grupo) => {
+            const Icono = grupo.icono;
+            const directo = grupo.id === "inicio";
+            const activo = grupo.id === grupoActivo?.id;
+            const expandido = abierto && grupo.id === grupoExpandido;
+            const resaltar = activo && (directo || !expandido);
+            const contenido = <><span className="sidebar-icono"><Icono size={20} strokeWidth={1.7} aria-hidden="true" /></span><span className="sidebar-texto sidebar-nombre">{grupo.nombre}</span></>;
+            return <div className="sidebar-grupo" key={grupo.id}>
+              {grupo.id === "configuracion" && <div className="sidebar-separador"><span className="sidebar-texto">ADMINISTRACIÓN</span></div>}
+              {directo ? <NavLink to={grupo.enlaces[0].ruta} onClick={cerrarMovil} className="sidebar-enlace" data-activo={resaltar} title={!abierto ? grupo.nombre : undefined} aria-label={grupo.nombre}>{indicador(resaltar)}{contenido}</NavLink> : <>
+                <button type="button" className="sidebar-enlace sidebar-grupo-boton" data-activo={resaltar} data-contexto={activo} aria-label={grupo.nombre} aria-expanded={expandido} aria-controls={expandido ? `sidebar-${grupo.id}-${id}` : undefined} title={!abierto ? grupo.nombre : undefined} onClick={() => { if (compacto) { setCompacto(false); localStorage.setItem("menuCompacto", "false"); } setSeleccion({ ruta: pathname, id: !abierto || grupoExpandido !== grupo.id ? grupo.id : null }); }}>
+                  {indicador(resaltar)}{contenido}<ChevronDown className="sidebar-texto sidebar-chevron" data-expandido={expandido} size={15} aria-hidden="true" />
+                </button>
+                <AnimatePresence initial={false}>
+                  {expandido && <motion.div key="enlaces" id={`sidebar-${grupo.id}-${id}`} className="sidebar-submenu" initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: reducirMovimiento ? 0 : 0.22 }}>
+                    {grupo.enlaces.map((enlace) => <NavLink key={enlace.ruta} to={enlace.ruta} onClick={cerrarMovil} className="sidebar-subenlace">{({ isActive }) => <>{indicador(isActive)}<span className="sidebar-subpunto" aria-hidden="true" /><span>{enlace.nombre}</span></>}</NavLink>)}
+                  </motion.div>}
+                </AnimatePresence>
+              </>}
+            </div>;
+          })}
+          {!grupos.length && <p className="sidebar-sin-modulos sidebar-texto">No hay módulos asignados para este rol.</p>}
+        </nav>
+        <footer className="sidebar-pie">
+          <div className="sidebar-perfil"><span className="sidebar-avatar">{usuario?.nombres?.trim().charAt(0)?.toUpperCase() || "U"}</span><div className="sidebar-texto"><strong>{usuario?.nombres || "Mi cuenta"}</strong><small>{usuario?.rol?.nombreRol || "Sin rol"}</small></div></div>
+          <button type="button" onClick={salir} title="Cerrar sesión" aria-label="Cerrar sesión" className="sidebar-salir"><LogOut size={18} aria-hidden="true" /><span className="sidebar-texto">Cerrar sesión</span></button>
+        </footer>
+      </motion.aside>
+    </LayoutGroup>
   );
 }

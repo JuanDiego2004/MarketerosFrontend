@@ -38,6 +38,8 @@ Alternativa por JDBC con las credenciales habituales de despliegue, sin pegarlas
 
 ### Escena de cliente y administrador
 
+El Portal del Cliente usa `PortalExperiencia.css` para el marco curvo, las pestañas con iconos Lucide, las tarjetas claras y los acentos lima. Resultados conserva el globo y los gráficos; Campañas muestra el detalle filtrado; Mi contrato organiza importes previstos y entregas en un recorrido por fechas; Materiales e Informes tienen vistas propias. El selector de contrato permanece disponible en la cabecera y los filtros de analítica se conservan al navegar entre pestañas. Materiales aparece únicamente si el contrato incluye publicación y no es de solo análisis. Las consultas, la autenticación y la validación de permisos en el servidor se reutilizan.
+
 `EscenaGlobo.css` comparte el lienzo a todo el ancho y los paneles superpuestos en ambos dashboards. El zoom amplía el planeta detrás de las tarjetas. La tabla del cliente, los detalles, entregas e informes permanecen fuera de la escena.
 
 El mundo gira automáticamente y ofrece pausa, reanudación, acercar, alejar y restablecer. La selección y el arrastre pausan el giro; restablecer la vista conserva el estado de pausa elegido. Se respeta la preferencia de movimiento reducido y se suspende el renderizado en pestañas ocultas o fuera de pantalla. El dibujo usa una resolución menor mientras se mueve; en reposo se dibuja una imagen más nítida y se detiene.

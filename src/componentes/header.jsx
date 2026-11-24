@@ -1,10 +1,15 @@
-import { UserRound, Bell } from "lucide-react";
+import { Bell, ChevronRight, Menu } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { obtenerModulos } from "./sidebar/funciones";
 import { useAuth } from "../contexto/ContextoAuth";
 import { solicitarCrm } from "../servicios/servicioCrm";
-export default function Header() {
+export default function Header({ abrirMenu, botonMenuRef }) {
   const { usuario, token } = useAuth();
+  const { pathname } = useLocation();
+  const grupos = obtenerModulos(usuario?.rol?.nombreRol);
+  const grupo = grupos.find((g) => g.enlaces.some((e) => pathname === e.ruta || pathname.startsWith(`${e.ruta}/`)));
+  const enlace = grupo?.enlaces.find((e) => pathname === e.ruta || pathname.startsWith(`${e.ruta}/`));
   const [tareas, setTareas] = useState([]);
   useEffect(() => {
     if (!token) return;
@@ -23,32 +28,30 @@ export default function Header() {
     };
   }, [token]);
   return (
-    <header className="relative flex min-h-12 items-center justify-end gap-4 bg-black px-5 text-white">
-      <span className="flex items-center gap-2 text-sm">
-        <UserRound size={20} />
-        {usuario?.nombres || "Mi cuenta"}
-      </span>
-      <details className="relative">
+    <header className="app-header">
+      <button type="button" ref={botonMenuRef} className="app-menu-movil app-icono" onClick={abrirMenu} aria-label="Abrir menú"><Menu size={21} /></button>
+      <nav className="app-migas" aria-label="Ubicación actual"><span>{grupo?.nombre || "Espacio de trabajo"}</span><ChevronRight size={14} aria-hidden="true" /><strong>{enlace?.nombre || "Mi agencia"}</strong></nav>
+      <details className="app-notificaciones">
         <summary
-          className="flex cursor-pointer items-center gap-2 rounded-md p-2 hover:bg-gray-800 focus-visible:outline-2 focus-visible:outline-blue-400"
+          className="app-icono"
           aria-label={`Notificaciones: ${tareas.length} tareas vencidas`}
         >
           <Bell size={20} />
           {tareas.length > 0 && (
-            <span className="text-xs">{tareas.length}</span>
+            <span className="app-contador">{tareas.length}</span>
           )}
         </summary>
-        <div className="absolute right-0 z-50 mt-2 max-h-80 w-72 overflow-y-auto rounded-lg border border-gray-700 bg-black p-4 shadow-xl">
+        <div className="app-notificaciones-panel">
           <p className="mb-2 text-sm font-semibold">Mis tareas vencidas</p>
           {tareas.length ? (
             tareas.map((t) => (
               <Link
                 key={t.id}
                 to="/actividades"
-                className="mb-2 block rounded p-2 text-sm hover:bg-gray-800 focus-visible:outline-2 focus-visible:outline-blue-400"
+                className="app-notificacion"
               >
                 {t.nombre}
-                <small className="block text-gray-300">
+                <small>
                   {new Date(t.fecha).toLocaleString("es-PE", {
                     timeZone: "America/Lima",
                   })}
@@ -56,12 +59,13 @@ export default function Header() {
               </Link>
             ))
           ) : (
-            <p className="text-sm text-gray-300">
+            <p className="app-notificaciones-vacio">
               No hay recordatorios vencidos.
             </p>
           )}
         </div>
       </details>
+      <div className="app-cuenta"><span className="app-avatar">{usuario?.nombres?.trim().charAt(0)?.toUpperCase() || "U"}</span><div><strong>{usuario?.nombres || "Mi cuenta"}</strong><small>{usuario?.rol?.nombreRol || ""}</small></div></div>
     </header>
   );
 }

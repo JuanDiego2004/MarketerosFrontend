@@ -5,11 +5,11 @@ export const METRICAS_MAPA = {
   inversion: "Inversión",
 };
 export const COLORES_MAPA = [
-  "#dceafc",
-  "#a9cbfa",
-  "#6fa8f4",
-  "#357de4",
-  "#1750ac",
+  "#ecf0dd",
+  "#d4dfae",
+  "#b7cb78",
+  "#8ea448",
+  "#526b32",
 ];
 export const numero = (n, decimales = 0) =>
   n == null

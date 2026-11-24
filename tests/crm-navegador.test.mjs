@@ -385,13 +385,15 @@ test("pantallas, CRUD, conflicto, teclado, móvil y restricciones de navegación
     await page.getByLabel("Añadir paso").selectOption("ESPERA");
     await page.getByRole("button",{name:"Añadir",exact:true}).click();
     await page.getByLabel("Esperar (minutos; máximo 7 días)").fill("1");
-    await page.getByLabel("Añadir paso").selectOption("SMS");
+    await page.getByLabel("Añadir paso").selectOption("EMAIL");
     await page.getByRole("button",{name:"Añadir",exact:true}).click();
-    await page.getByLabel("Mensaje SMS (admite {{nombre}})").fill("Hola {{nombre}}");
+    await page.getByLabel("Asunto",{exact:true}).fill("Seguimiento del contacto");
+    await page.getByLabel("Mensaje de email (admite {{nombre}})").fill("Hola {{nombre}}");
     await page.getByLabel("Estado").selectOption("activo");
     await page.getByRole("button",{name:"Guardar flujo",exact:true}).first().click();
     await page.getByText("Flujo guardado.",{exact:false}).waitFor();
-    assert.equal(flujo.definicion.nodos.at(-1).tipo,"SMS");
+    assert.equal(flujo.definicion.nodos.at(-1).tipo,"EMAIL");
+    assert.equal(flujo.definicion.nodos.at(-1).parametros.asunto,"Seguimiento del contacto");
     await page.getByLabel("Añadir paso").selectOption("WHATSAPP");
     await page.getByRole("button",{name:"Añadir",exact:true}).click();
     await page.getByRole("button",{name:"Usar plantilla hello_world",exact:true}).click();

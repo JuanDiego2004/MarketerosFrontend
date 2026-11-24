@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import { Download } from "lucide-react";
+import { CalendarDays, Check, Clapperboard, Download, Eye, FileChartColumn, FileText, PackageCheck } from "lucide-react";
 import { useAuth } from "../../contexto/ContextoAuth";
 import { solicitarCrm, descargarCrm } from "../../servicios/servicioCrm";
 import DialogoCrm from "../../componentes/crm/DialogoCrm";
 import { VistaMaterial } from "./CentroEntregas";
 import "../crm/Crm.css";
 
-export default function EntregasContratoCliente({ contrato: c }) {
+export default function EntregasContratoCliente({ contrato: c, vista = "todo", alCargar }) {
   const { token } = useAuth(),
     [datos, setDatos] = useState(null),
     [error, setError] = useState(""),
@@ -21,13 +21,13 @@ export default function EntregasContratoCliente({ contrato: c }) {
       signal: control.signal,
     })
       .then((d) => {
-        if (!control.signal.aborted) setDatos(d);
+        if (!control.signal.aborted) { setDatos(d); alCargar?.(c.id, d); }
       })
       .catch((e) => {
         if (!control.signal.aborted) setError(e.message);
       });
     return () => control.abort();
-  }, [token, c.id, revision]);
+  }, [token, c.id, revision, alCargar]);
   useEffect(
     () => () => {
       if (previa) URL.revokeObjectURL(previa.url);
@@ -93,154 +93,30 @@ export default function EntregasContratoCliente({ contrato: c }) {
       setOcupado(false);
     }
   }
+  const general = vista === "contrato" || vista === "todo";
+  const materiales = vista === "materiales" || vista === "todo";
+  const informes = vista === "informes" || vista === "todo";
+  const publicacion = c.servicio !== "ANALISIS" && datos?.prestaciones.some((p) => p.prestacion === "PUBLICACION" && Number(p.cantidad) > 0);
   return (
     <>
-      <section className="crm-panel">
-        <h2>{c.nombre}</h2>
-        <p>
-          {c.servicio} · {c.estado} · {c.desde} a {c.hasta}
-        </p>
-        <p>{c.alcance}</p>
-        <div className="crm-demo-kpis">
-          {[
-            ["Honorarios previstos", c.honorarios],
-            ...(c.servicio === "ANALISIS"
-              ? []
-              : [
-                  ["Producción", c.produccion],
-                  ["Presupuesto autorizado", c.presupuesto],
-                ]),
-          ].map(([k, v]) => (
-            <section className="crm-panel" key={k}>
-              {k}
-              <strong>
-                {Number(v).toLocaleString("es-PE")} {c.moneda}
-              </strong>
-            </section>
-          ))}
-        </div>
-      </section>
-      {error && (
-        <p role="alert" className="crm-error">
-          {error}
-          <button
-            className="crm-boton"
-            onClick={() => {
-              setError("");
-              setRevision((v) => v + 1);
-            }}
-          >
-            Reintentar
-          </button>
-        </p>
-      )}
-      {!datos ? (
-        <p role="status">Cargando entregas…</p>
-      ) : (
-        <>
-          <section className="crm-panel">
-            <h2>Mis entregables</h2>
-            {datos.entregables.length ? (
-              datos.entregables.map((t, i) => (
-                <p key={i}>
-                  {t.fecha} · {t.nombre} · {t.cantidad} unidades · {t.estado}
-                </p>
-              ))
-            ) : (
-              <p>Aún no hay entregables registrados.</p>
-            )}
-            <h3>Prestaciones contratadas</h3>
-            {datos.prestaciones.map((p) => (
-              <p key={p.prestacion}>
-                {p.prestacion} · {p.cantidad}
-              </p>
-            ))}
+      {general && <section className="cliente-resumen-contrato">
+        <div className="cliente-seccion-titulo"><span className="cliente-icono-lima"><FileText size={20} /></span><div><small>MI CONTRATO</small><h2>{c.nombre}</h2><p>{c.servicio} · {c.estado} · {c.desde} a {c.hasta}</p></div></div>
+        {c.alcance && <p className="cliente-alcance">{c.alcance}</p>}
+        <div className="cliente-importes">{[["Honorarios previstos",c.honorarios],...(c.servicio === "ANALISIS" ? [] : [["Producción",c.produccion],["Presupuesto autorizado",c.presupuesto]])].map(([nombre,valor])=><div key={nombre}><span>{nombre}</span><strong>{Number(valor).toLocaleString("es-PE")} <small>{c.moneda}</small></strong></div>)}</div>
+      </section>}
+      {error && <p role="alert" className="crm-error">{error}<button className="crm-boton" onClick={()=>{setError("");setRevision((v)=>v+1);}}>Reintentar</button></p>}
+      {!datos ? <p role="status" className="cliente-cargando">Cargando entregas…</p> : <>
+        {general && <>
+          <section className="cliente-recorrido">
+            <div className="cliente-seccion-titulo"><span className="cliente-icono-lima"><PackageCheck size={20} /></span><div><small>RECORRIDO DEL SERVICIO</small><h2>Mis entregables</h2></div></div>
+            {datos.entregables.length ? <div className="cliente-timeline">{[...datos.entregables].sort((a,b)=>String(a.fecha||"").localeCompare(String(b.fecha||""))).map((t,i)=><article key={t.id || i} className="cliente-evento"><span className="cliente-evento-nodo"><CalendarDays size={17}/></span><time dateTime={t.fecha}>{t.fecha}</time><div className="cliente-evento-tarjeta"><span className="cliente-estado">{t.estado}</span><h3>{t.nombre}</h3><p>{t.cantidad} unidades</p>{t.descripcion && <p>{t.descripcion}</p>}</div></article>)}</div> : <div className="cliente-vacio"><PackageCheck size={25}/><p>Aún no hay entregables registrados.</p></div>}
+            <h3 className="cliente-subtitulo">Prestaciones contratadas</h3><div className="cliente-prestaciones">{datos.prestaciones.map((p)=><span key={p.prestacion}><Check size={14}/>{p.prestacion.replaceAll("_"," ").toLowerCase()}<strong>{p.cantidad}</strong></span>)}</div>
           </section>
-          {c.servicio !== "ANALISIS" &&
-            datos.prestaciones.some(
-              (p) => p.prestacion === "PUBLICACION" && Number(p.cantidad) > 0,
-            ) && (
-              <section className="crm-panel">
-                <h2>Materiales y aprobaciones</h2>
-                {!datos.revisiones.length ? (
-                  <p>No hay materiales enviados para tu revisión.</p>
-                ) : (
-                  datos.revisiones.map((r) => (
-                    <section className="crm-panel" key={r.id}>
-                      <h3>
-                        {r.codigo} · {r.nombre}
-                      </h3>
-                      <p>
-                        {r.estado} · {r.observacion}
-                      </p>
-                      <div className="crm-acciones">
-                        <button
-                          className="crm-boton"
-                          disabled={ocupado}
-                          onClick={() => mostrar(r)}
-                        >
-                          Ver material
-                        </button>
-                        {r.estado === "PENDIENTE" &&
-                          ["APROBADO", "RECHAZADO"].map((e) => (
-                            <button
-                              key={e}
-                              className="crm-boton"
-                              disabled={ocupado}
-                              onClick={() => {
-                                setDecision({ fila: r, estado: e });
-                                setObservacion("");
-                              }}
-                            >
-                              {e === "APROBADO"
-                                ? "Aprobar material"
-                                : "Solicitar cambios"}
-                            </button>
-                          ))}
-                      </div>
-                    </section>
-                  ))
-                )}
-              </section>
-            )}
-          <section className="crm-panel">
-            <h2>
-              {c.servicio === "ANALISIS"
-                ? "Anuncios analizados"
-                : "Mis publicaciones"}
-            </h2>
-            {datos.anuncios.map((a) => (
-              <p key={a.id}>
-                {a.fecha} · {a.codigo} · {a.nombre} · {a.estado}
-              </p>
-            ))}
-          </section>
-          <section className="crm-panel">
-            <h2>Mis informes y resultados</h2>
-            <p>
-              Descarga los resultados y recomendaciones que la agencia publicó
-              para tu empresa.
-            </p>
-            {datos.informes.length ? (
-              datos.informes.map((f) => (
-                <p key={f.id}>
-                  {f.titulo} · Versión {f.numero}{" "}
-                  <button
-                    className="crm-boton"
-                    disabled={ocupado}
-                    onClick={() => descargar(f)}
-                  >
-                    <Download size={16} />
-                    Descargar PDF
-                  </button>
-                </p>
-              ))
-            ) : (
-              <p>Aún no se publicaron informes.</p>
-            )}
-          </section>
-        </>
-      )}
+          <section className="cliente-publicaciones"><div className="cliente-seccion-titulo"><span className="cliente-icono-suave"><Clapperboard size={20}/></span><div><small>ACTIVIDAD DEL CONTRATO</small><h2>{c.servicio === "ANALISIS" ? "Anuncios analizados" : "Mis publicaciones"}</h2></div></div>{datos.anuncios.length ? <div className="cliente-tarjetas">{datos.anuncios.map((a)=><article className="cliente-tarjeta" key={a.id}><small>{a.fecha} · {a.codigo}</small><h3>{a.nombre}</h3><span className="cliente-estado">{a.estado}</span></article>)}</div> : <p className="cliente-vacio">Aún no hay anuncios asociados a este contrato.</p>}</section>
+        </>}
+        {materiales && publicacion && <section className="cliente-materiales"><div className="cliente-seccion-titulo"><span className="cliente-icono-lima"><Clapperboard size={20}/></span><div><small>REVISIÓN CREATIVA</small><h2>Materiales y aprobaciones</h2><p>Consulta las piezas que la agencia compartió contigo.</p></div></div>{!datos.revisiones.length ? <div className="cliente-vacio"><Clapperboard size={26}/><p>No hay materiales enviados para tu revisión.</p></div> : <div className="cliente-tarjetas">{datos.revisiones.map((r)=><article className="cliente-tarjeta" key={r.id}><span className="cliente-tarjeta-icono"><Clapperboard size={26} strokeWidth={1.3}/></span><small>{r.codigo}</small><h3>{r.nombre}</h3><span className="cliente-estado">{r.estado}</span>{r.observacion && <p>{r.observacion}</p>}<div className="crm-acciones"><button className="crm-boton" disabled={ocupado} onClick={()=>mostrar(r)}><Eye size={16}/>Ver material</button>{r.estado === "PENDIENTE" && ["APROBADO","RECHAZADO"].map((estado)=><button key={estado} className={estado === "APROBADO" ? "crm-boton crm-primario" : "crm-boton"} disabled={ocupado} onClick={()=>{setDecision({fila:r,estado});setObservacion("");}}>{estado === "APROBADO" ? "Aprobar material" : "Solicitar cambios"}</button>)}</div></article>)}</div>}</section>}
+        {informes && <section className="cliente-informes"><div className="cliente-seccion-titulo"><span className="cliente-icono-lima"><FileChartColumn size={20}/></span><div><small>BIBLIOTECA DE RESULTADOS</small><h2>Mis informes y resultados</h2><p>Resultados y recomendaciones publicados por la agencia para tu empresa.</p></div></div>{datos.informes.length ? <div className="cliente-tarjetas">{datos.informes.map((f)=><article className="cliente-tarjeta" key={f.id}><span className="cliente-tarjeta-icono"><FileChartColumn size={28} strokeWidth={1.3}/></span><small>Informe · Versión {f.numero}</small><h3>{f.titulo}</h3><button className="crm-boton crm-primario" disabled={ocupado} onClick={()=>descargar(f)}><Download size={16}/>Descargar PDF</button></article>)}</div> : <div className="cliente-vacio"><FileChartColumn size={26}/><p>Aún no se publicaron informes.</p></div>}</section>}
+      </>}
       {previa && (
         <VistaMaterial previa={previa} cerrar={() => setPrevia(null)} />
       )}

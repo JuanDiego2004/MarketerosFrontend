@@ -642,7 +642,7 @@ export default function PantallaAdministracion({ apiBase = "/api/admin" }) {
         <p className="mb-2 text-[10px] font-bold uppercase tracking-[.18em] text-slate-400">
           {etiquetaModulo}
         </p>
-        <h1 className="text-2xl font-semibold tracking-tight text-red-600 md:text-3xl">
+        <h1 className="text-2xl font-semibold tracking-tight text-slate-950 md:text-3xl">
           {modulo.titulo}
         </h1>
         <p className="mt-2 text-sm text-slate-500">

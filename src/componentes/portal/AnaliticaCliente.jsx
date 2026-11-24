@@ -29,14 +29,14 @@ import {
 } from "../../utils/analiticaPortal";
 
 const VACIO = [];
-const CAMPOS_IMPRESIONES = [["impresiones", "Impresiones", "#2e71d1"]];
+const CAMPOS_IMPRESIONES = [["impresiones", "Impresiones", "#465940"]];
 const CAMPOS_ACCIONES = [
-  ["clics", "Clics", "#2e71d1"],
-  ["conversiones", "Conversiones", "#2f9e8f"],
+  ["clics", "Clics", "#788d45"],
+  ["conversiones", "Conversiones", "#a7bc43"],
 ];
 const CAMPOS_IMPORTES = [
-  ["inversion", "Inversión", "#2e71d1"],
-  ["ingresos_estimados", "Ingreso estimado", "#c28a30"],
+  ["inversion", "Inversión", "#465940"],
+  ["ingresos_estimados", "Ingreso estimado", "#9b8d5f"],
 ];
 
 export default function AnaliticaCliente({
@@ -47,8 +47,18 @@ export default function AnaliticaCliente({
   alCargarContexto,
   revision,
   actualizar,
+  contratoEnCabecera = false,
+  vista = "resultados",
 }) {
   const [locales, setLocales] = useState(filtrosIniciales);
+  const contratoAnterior = useRef(contrato);
+  useEffect(() => {
+    if (contratoAnterior.current !== contrato) {
+      contratoAnterior.current = contrato;
+      setLocales((f) => ({ ...f, campana: "" }));
+      setPagina(0);
+    }
+  }, [contrato]);
   const [datos, setDatos] = useState(null);
   const [consultaResuelta, setConsultaResuelta] = useState("");
   const [error, setError] = useState("");
@@ -282,7 +292,7 @@ export default function AnaliticaCliente({
           className={`portal-filtros ${verFiltros ? "portal-filtros-abiertos" : ""}`}
           id="portal-filtros"
         >
-          <Campo titulo="Contrato">
+          {!contratoEnCabecera && <Campo titulo="Contrato">
             <select
               aria-label="Mi contrato"
               value={contrato}
@@ -295,7 +305,7 @@ export default function AnaliticaCliente({
                 </option>
               ))}
             </select>
-          </Campo>
+          </Campo>}
           <Campo titulo="Campaña">
             <select
               aria-label="Campaña"
@@ -420,7 +430,7 @@ export default function AnaliticaCliente({
               </div>
             </div>
           )}
-          <div className="portal-panel-principal escena-globo escena-globo-cliente">
+          <div className="portal-panel-principal escena-globo escena-globo-cliente" hidden={vista === "campanas"}>
             <PanelGlobo
               titulo="Indicadores"
               className="portal-kpis"

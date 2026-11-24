@@ -24,6 +24,7 @@ import DialogoCrm from "../../componentes/crm/DialogoCrm";
 import { solicitarCrm, descargarCrm } from "../../servicios/servicioCrm";
 import { leerCsvCrm } from "../../utils/csvCrm";
 import "./Crm.css";
+import Pestanas from "../../componentes/ui/Pestanas";
 import PuntajeContacto from "./PuntajeContacto";
 import RelacionesContacto from "./RelacionesContacto";
 import ValoresPersonalizados from "./ValoresPersonalizados";
@@ -558,47 +559,7 @@ export default function PantallaCrm({ recurso = "contactos" }) {
           </>
         ) : (
           <>
-            <div
-              role="tablist"
-              aria-label="Secciones de la ficha"
-              className="crm-tabs"
-            >
-              {tabs.map((t) => (
-                <button
-                  key={t}
-                  id={`crm-tab-${t.replaceAll(" ", "-")}`}
-                  role="tab"
-                  aria-selected={tab === t}
-                  aria-controls="crm-tabpanel"
-                  tabIndex={tab === t ? 0 : -1}
-                  className="crm-boton"
-                  onClick={() => setTab(t)}
-                  onKeyDown={(e) => {
-                    const paso =
-                      e.key === "ArrowRight"
-                        ? 1
-                        : e.key === "ArrowLeft"
-                          ? -1
-                          : 0;
-                    if (paso) {
-                      e.preventDefault();
-                      const siguiente =
-                        tabs[
-                          (tabs.indexOf(tab) + paso + tabs.length) % tabs.length
-                        ];
-                      setTab(siguiente);
-                      document
-                        .getElementById(
-                          `crm-tab-${siguiente.replaceAll(" ", "-")}`,
-                        )
-                        ?.focus();
-                    }
-                  }}
-                >
-                  {t}
-                </button>
-              ))}
-            </div>
+            <Pestanas tipo="paneles" etiqueta="Secciones de la ficha" opciones={tabs.map((t) => ({ valor: t, etiqueta: t }))} valor={tab} alCambiar={setTab} idBase="crm-tab" panelId="crm-tabpanel" />
             <div
               role="tabpanel"
               id="crm-tabpanel"

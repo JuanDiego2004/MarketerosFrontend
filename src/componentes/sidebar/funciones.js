@@ -13,32 +13,3 @@ export function obtenerModulos(nombreRol) {
 
   return [];
 }
-
-export const sidebarVariants = {
-  cerrado: {
-    width: 56,
-  },
-  abierto: {
-    width: 260,
-  },
-};
-
-export const textoVariants = {
-  cerrado: {
-    opacity: 0,
-    width: 0,
-    x: -8,
-    transition: {
-      duration: 0.15,
-    },
-  },
-  abierto: {
-    opacity: 1,
-    width: 180,
-    x: 0,
-    transition: {
-      duration: 0.25,
-      delay: 0.05,
-    },
-  },
-};

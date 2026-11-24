@@ -150,7 +150,7 @@ export default function TablaGlass({
   };
 
   return (
-    <section className="w-full rounded-2xl border border-slate-200 bg-white p-3 shadow-[0_8px_30px_rgba(15,23,42,0.045)] sm:p-5">
+    <section className="tabla-sistema w-full rounded-2xl border border-slate-200 bg-white p-3 shadow-[0_8px_30px_rgba(15,23,42,0.045)] sm:p-5">
       {(tituloTabla || descripcionTabla) && (
         <div className="mb-4 px-1">
           {tituloTabla && (
@@ -164,7 +164,7 @@ export default function TablaGlass({
         </div>
       )}
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3 px-1">
-        <label className="flex h-11 w-full max-w-md items-center gap-3 rounded-2xl border border-slate-200/80 bg-white/70 px-3.5 text-slate-500 shadow-sm shadow-slate-900/[0.03] transition focus-within:border-emerald-300 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-400/10">
+        <label className="tabla-busqueda flex h-11 w-full max-w-md items-center gap-3 rounded-2xl border border-slate-200/80 bg-white/70 px-3.5 text-slate-500 shadow-sm shadow-slate-900/[0.03] transition focus-within:border-emerald-300 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-400/10">
           <IconoBuscar />
           <input
             type="search"
@@ -182,7 +182,7 @@ export default function TablaGlass({
           <button
             type="button"
             onClick={alCrear}
-            className="inline-flex h-10 shrink-0 items-center gap-2 rounded-xl bg-black px-4 text-xs font-semibold text-white shadow-sm transition hover:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-slate-300/70"
+            className="tabla-crear inline-flex h-10 shrink-0 items-center gap-2 rounded-xl bg-black px-4 text-xs font-semibold text-white shadow-sm transition hover:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-slate-300/70"
           >
             <span className="text-base leading-none">+</span>
             {textoCrear}

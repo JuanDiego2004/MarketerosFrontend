@@ -304,6 +304,7 @@ for (const rol of ["Cliente", "Administrador"])
         await escena.screenshot({
           path: `docs/dashboard-${nombre}-inmersivo.png`,
         });
+        if (rol === "Cliente") await page.locator(".cliente-experiencia").screenshot({path:"docs/cliente-globo-estilo.png"});
         console.log(`${rol}: selección comprobada`);
         await page.setViewportSize({ width: 390, height: 844 });
         await escena.evaluate((e) =>

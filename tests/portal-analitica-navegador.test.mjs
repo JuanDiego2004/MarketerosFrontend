@@ -153,8 +153,11 @@ test(
               { prestacion: "INFORMES", cantidad: 1 },
             ],
             anuncios: [],
-            entregables: [],
-            informes: [],
+            entregables: [
+              {id:1,fecha:"2026-11-12",nombre:"Reporte de rendimiento",cantidad:1,estado:"COMPLETADO"},
+              {id:2,fecha:"2026-11-26",nombre:"Revisión de estrategia",cantidad:1,estado:"PENDIENTE"},
+            ],
+            informes: [{id:1,numero:1,titulo:"Rendimiento de noviembre"}],
             revisiones: [
               {
                 id: 1,
@@ -312,11 +315,14 @@ test(
       assert.match(todos, /Campaña Andina 01/);
       assert.match(todos, /Campaña Andina 02/);
       assert.match(todos, /Campaña Andina 12/);
+      await page.screenshot({path:"docs/cliente-resultados-estilo.png"});
       await page.screenshot({
         path: `docs/portal-analitica-${verificarGlobo ? "globo" : "alternativa"}-escritorio.png`,
         fullPage: true,
       });
       await page.getByLabel("Mi contrato", { exact: true }).selectOption("2");
+      await page.getByRole("button", { name:"Mi contrato", exact:true }).click();
+      assert.equal(await page.getByRole("button",{name:"Materiales",exact:true}).count(),0);
       await page
         .getByRole("heading", { name: "Mis entregables", exact: true })
         .waitFor();
@@ -327,6 +333,7 @@ test(
         0,
       );
       await page.getByLabel("Mi contrato", { exact: true }).selectOption("1");
+      await page.getByRole("button", { name:"Materiales", exact:true }).click();
       await page
         .getByRole("button", { name: "Aprobar material", exact: true })
         .waitFor();
@@ -338,7 +345,21 @@ test(
         .click();
       await page.getByRole("dialog").waitFor({ state: "detached" });
       assert.equal(aprobaciones, 1);
+      await page.getByRole("button", { name:"Informes", exact:true }).click();
+      await page.getByRole("heading", { name:"Mis informes y resultados", exact:true }).waitFor();
+      await page.screenshot({path:"docs/cliente-informes-estilo.png"});
+      await page.getByRole("button", { name:"Mi contrato", exact:true }).click();
+      await page.getByRole("heading", { name:"Mis entregables", exact:true }).waitFor();
+      await page.screenshot({path:"docs/cliente-contrato-estilo.png"});
+      await page.getByRole("button", { name:"Campañas", exact:true }).click();
+      await page.getByRole("heading", { name:"Resultados en detalle", exact:true }).waitFor();
+      assert.equal(await page.getByRole("region", {name:"Resultados por país",exact:true}).isVisible(),false);
+      await page.getByRole("button", { name:"Resultados", exact:true }).click();
+      assert.equal(await page.getByLabel("Mi contrato",{exact:true}).inputValue(),"1");
       await page.setViewportSize({ width: 390, height: 844 });
+      await page.getByRole("button",{name:"Informes",exact:true}).click();
+      await page.getByRole("heading",{name:"Mis informes y resultados",exact:true}).waitFor();
+      await page.getByRole("button",{name:"Resultados",exact:true}).click();
       await page.getByRole("button", { name: "Filtros", exact: true }).click();
       await page.getByLabel("País", { exact: true }).selectOption("CO");
       await page.locator('.portal-resultados[aria-busy="false"]').waitFor();
@@ -352,6 +373,7 @@ test(
         path: `docs/portal-analitica-${verificarGlobo ? "globo" : "alternativa"}-movil.png`,
         fullPage: true,
       });
+      await page.screenshot({path:"docs/cliente-portal-estilo-movil.png"});
       await page
         .getByLabel("Buscar campaña, anuncio o contrato", { exact: true })
         .fill("Inexistente");
