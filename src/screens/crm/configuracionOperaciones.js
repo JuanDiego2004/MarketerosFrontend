@@ -166,7 +166,7 @@ export const operaciones = {
   automatizaciones: {
     titulo: "Automatizaciones",
     descripcion:
-      "Cada contacto que entra al segmento recibe una acción una sola vez por flujo. Email requiere consentimiento MARKETING / EMAIL vigente.",
+      "Cada contacto que entra al segmento recibe una acción una sola vez por flujo. En el Editor visual puedes añadir correo electrónico con Brevo, WhatsApp Cloud, tareas, esperas y condiciones. Los envíos requieren consentimiento vigente.",
     campos: [
       nombre,
       lista("segmento_id", "Segmento", "segmentos"),

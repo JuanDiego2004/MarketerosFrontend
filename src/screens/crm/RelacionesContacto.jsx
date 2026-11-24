@@ -194,7 +194,7 @@ export default function RelacionesContacto({
                 de marketing por email están bloqueados.
               </p>
             )}
-            {datos.canalesSuprimidos?.map(canal => <p className="crm-error" key={canal}><MailX size={16} />Este contacto solicitó la baja de marketing por {canal === "WHATSAPP" ? "WhatsApp" : "SMS"}. Los envíos de este canal están bloqueados.</p>)}
+            {datos.canalesSuprimidos?.filter(canal => canal === "WHATSAPP").map(canal => <p className="crm-error" key={canal}><MailX size={16} />Este contacto solicitó la baja de marketing por WhatsApp. Los envíos de este canal están bloqueados.</p>)}
             <section className="crm-panel">
               <header className="crm-cabecera">
                 <div className="crm-acciones">
