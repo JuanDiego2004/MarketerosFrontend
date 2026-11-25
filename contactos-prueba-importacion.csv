@@ -1,0 +1,5 @@
+nombre,correo,telefono,estado,origen,etiquetas,cuentaId,campanaId,responsableId
+María Fernanda Rojas,maria.rojas.demo@example.com,,NUEVO,WEB,"prueba;importacion",,,
+Luis Alberto Pérez,luis.perez.demo@example.com,,CONTACTADO,REFERIDO,"prueba;importacion",,,
+Camila Torres,camila.torres.demo@example.com,,NUEVO,REDES_SOCIALES,"prueba;importacion",,,
+Diego Salazar,diego.salazar.demo@example.com,,CALIFICADO,FORMULARIO,"prueba;importacion",,,
