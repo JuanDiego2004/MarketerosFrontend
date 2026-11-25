@@ -5,6 +5,7 @@ import { useAuth } from "../../contexto/ContextoAuth";
 import { solicitarCrm } from "../../servicios/servicioCrm";
 import MensajesWhatsApp from "./MensajesWhatsApp";
 import EnvioCorreo from "./EnvioCorreo";
+import EnvioWhatsApp from "./EnvioWhatsApp";
 import "./Crm.css";
 
 export default function CanalesCrm() {
@@ -24,6 +25,6 @@ export default function CanalesCrm() {
     <section className="crm-panel"><h2>Rendimiento publicitario</h2><p>Fuente de estadísticas: Mockaroo.</p><Link className="crm-boton" to="/metricas"><ChartNoAxesCombined size={16}/>Ver rendimiento publicitario</Link></section>
     {error && <p className="crm-error" role="alert">{error}<button className="crm-boton" onClick={() => setRevision((n) => n + 1)}>Reintentar canales</button></p>}
     {!datos && !error && <p role="status">Cargando canales…</p>}
-    {datos && <><section className="crm-panel"><h2>Envíos y seguimiento</h2><p>WhatsApp Cloud: {datos.estado.whatsappConfigurado ? "configurado" : "pendiente de configurar"} · Correo Brevo: {datos.estado.emailConfigurado ? "configurado" : "pendiente de configurar"}.</p><p className="crm-ayuda">Puedes enviar un correo directo a un contacto, a los contactos de una empresa, a un segmento de CRM o a todos los contactos con consentimiento. Las automatizaciones siguen siendo para seguimientos basados en segmentos. Ejecución automática: {datos.estado.automatizacionesProgramadas ? "habilitada" : "deshabilitada"}.</p></section><EnvioCorreo gestionar={datos.permisos.integracionesGestionar} configurado={datos.estado.emailConfigurado}/><MensajesWhatsApp contactos={datos.opciones.contactos} gestionar={datos.permisos.integracionesGestionar}/></>}
+    {datos && <><section className="crm-panel"><h2>Envíos y seguimiento</h2><p>WhatsApp Cloud: {datos.estado.whatsappConfigurado ? "configurado" : "pendiente de configurar"} · Correo Brevo: {datos.estado.emailConfigurado ? "configurado" : "pendiente de configurar"}.</p><p className="crm-ayuda">Puedes enviar directamente por correo o WhatsApp a un contacto, a los contactos de una empresa, a un segmento de CRM o a todos los contactos con consentimiento. Las automatizaciones siguen siendo para seguimientos secuenciales basados en segmentos. Ejecución automática: {datos.estado.automatizacionesProgramadas ? "habilitada" : "deshabilitada"}.</p></section><EnvioCorreo gestionar={datos.permisos.integracionesGestionar} configurado={datos.estado.emailConfigurado}/><EnvioWhatsApp gestionar={datos.permisos.integracionesGestionar} configurado={datos.estado.whatsappConfigurado}/><MensajesWhatsApp contactos={datos.opciones.contactos} gestionar={datos.permisos.integracionesGestionar}/></>}
   </section>;
 }
