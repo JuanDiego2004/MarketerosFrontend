@@ -1,0 +1,57 @@
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { chromium } from "playwright-core";
+
+const url=process.env.CRM_UI_URL||"http://127.0.0.1:5188";
+test("Confirmaciones: centro, fragmentos, foco, espera, Escape, anidado y móvil", {timeout:120000}, async()=>{
+  const browser=await chromium.launch({executablePath:"C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe",headless:true});
+  try {
+    const contexto=await browser.newContext({viewport:{width:1440,height:960},reducedMotion:"reduce"});
+    const page=await contexto.newPage(),errores=[];
+    page.on("pageerror",(e)=>errores.push(e.message));
+    await page.goto(url+"/tests/apoyos/dialogos-confirmacion.html");
+    const abrir=page.getByRole("button",{name:"Abrir confirmación de correo",exact:true});
+    await abrir.click();
+    const correo=page.getByRole("dialog",{name:"Confirmar envío de correo",exact:true});
+    await correo.waitFor();
+    const caja=await correo.boundingBox();
+    assert.ok(caja.width<600 && Math.abs(caja.x+caja.width/2-720)<2);
+    assert.ok(Math.abs(caja.y+caja.height/2-480)<2);
+    assert.equal(await correo.evaluate((e)=>e.parentElement===document.body),true);
+    assert.equal(await correo.getByRole("button",{name:"Cancelar",exact:true}).evaluate((e)=>e===document.activeElement),true);
+    await page.screenshot({path:"docs/confirmacion-correo-escritorio.png",animations:"disabled"});
+    await page.keyboard.press("Escape");
+    await correo.waitFor({state:"detached"});
+    assert.equal(await abrir.evaluate((e)=>e===document.activeElement),true);
+    await abrir.click();
+    await correo.getByRole("button",{name:"Confirmar y enviar",exact:true}).click();
+    assert.equal(await correo.getAttribute("aria-busy"),"true");
+    for(const boton of await correo.getByRole("button").all()) assert.equal(await boton.isDisabled(),true);
+    await page.keyboard.press("Escape");
+    assert.equal(await correo.count(),1);
+    assert.equal(await page.getByLabel("Confirmaciones de prueba").textContent(),"1");
+    await page.evaluate(()=>window.resolverConfirmacionDePrueba());
+    await correo.waitFor({state:"detached"});
+    await page.getByRole("button",{name:"Eliminar registro de prueba",exact:true}).click();
+    const eliminar=page.getByRole("dialog",{name:"Eliminar registro",exact:true});
+    await eliminar.getByText("Esta acción no se puede deshacer.",{exact:true}).waitFor();
+    await page.screenshot({path:"docs/confirmacion-eliminar-escritorio.png",animations:"disabled"});
+    await eliminar.getByRole("button",{name:"Cancelar",exact:true}).click();
+    await page.getByRole("button",{name:"Abrir detalle",exact:true}).click();
+    await page.getByRole("button",{name:"Confirmación anidada",exact:true}).click();
+    const ids=await page.locator("dialog[open]").evaluateAll((ds)=>ds.map((d)=>d.getAttribute("aria-labelledby")));
+    assert.equal(new Set(ids).size,2);
+    await correo.getByRole("button",{name:"Cancelar",exact:true}).click();
+    assert.equal(await page.getByRole("button",{name:"Confirmación anidada",exact:true}).evaluate((e)=>e===document.activeElement),true);
+    await page.keyboard.press("Escape");
+    await page.setViewportSize({width:390,height:844});
+    await abrir.click();
+    const movil=await correo.boundingBox();
+    assert.ok(movil.x>=10 && movil.x+movil.width<=380 && movil.y>=10 && movil.y+movil.height<=834);
+    assert.equal(await correo.locator(".dialogo-marco").evaluate((e)=>e.scrollWidth<=e.clientWidth),true);
+    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+    await page.screenshot({path:"docs/confirmacion-correo-movil.png",animations:"disabled"});
+    await correo.getByRole("button",{name:"Cerrar",exact:true}).click();
+    assert.deepEqual(errores,[]);
+  } finally {await browser.close();}
+});

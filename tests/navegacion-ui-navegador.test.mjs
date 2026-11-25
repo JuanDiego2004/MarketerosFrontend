@@ -20,6 +20,7 @@ async function preparar(browser, rol = "Administrador") {
     const u = new URL(ruta.request().url()), p = u.pathname;
     let datos = [];
     if (p.endsWith("/capacidades")) datos = { contactosLeer: true, contactosGestionar: true, cuentasLeer: true, cuentasGestionar: true, actividadesLeer: true, actividadesGestionar: true };
+    else if (p.endsWith("/notificaciones")) datos = [{id:7,nombre:"Revisar resultados de noviembre",fecha:"2026-11-23T15:00:00-05:00"}];
     else if (p === "/api/crm/contactos") {
       consultas.push(Object.fromEntries(u.searchParams));
       const filas = personas.filter((f) => (!u.searchParams.get("estado") || f.estado === u.searchParams.get("estado")) && f.nombre.toLowerCase().includes((u.searchParams.get("q") || "").toLowerCase()));
@@ -45,6 +46,35 @@ test("Navegación curva, filtros reales, pestañas con teclado y menú móvil ac
     await pagina.getByRole("cell", { name: "Andina Studio", exact: true }).first().waitFor();
     const menu = pagina.getByRole("navigation", { name: "Navegación principal" });
     assert.equal(await menu.getByRole("link", { name: "Contactos / Leads", exact: true }).getAttribute("aria-current"), "page");
+    const lateral = await pagina.locator(".sidebar").boundingBox();
+    const cabecera = await pagina.locator(".app-header").boundingBox();
+    assert.equal(lateral.x,0);
+    assert.equal(lateral.y,0);
+    assert.equal(lateral.height,960);
+    assert.equal(cabecera.x + cabecera.width,1440);
+    const notch = pagina.locator(".app-notch");
+    const notificaciones = pagina.getByRole("button",{name:"Notificaciones: 1 tareas vencidas",exact:true});
+    await notificaciones.waitFor();
+    const compacto = await notch.boundingBox();
+    await notch.hover();
+    await pagina.locator('.app-notch[data-expandido="true"]').waitFor();
+    await pagina.getByRole("link",{name:/Revisar resultados de noviembre/}).waitFor();
+    await pagina.waitForFunction(() => document.querySelector(".app-notch").getBoundingClientRect().width > 320);
+    const expandido = await notch.boundingBox();
+    assert.ok(expandido.width > compacto.width && expandido.height > compacto.height);
+    await pagina.screenshot({path:"docs/header-notch-expandido.png",animations:"disabled"});
+    await pagina.getByRole("heading",{name:"Contactos",exact:true}).hover();
+    await pagina.locator('.app-notch[data-expandido="false"]').waitFor();
+    await pagina.getByRole("button",{name:"Mi cuenta",exact:true}).focus();
+    await pagina.locator('.app-notch[data-expandido="true"]').waitFor();
+    await pagina.keyboard.press("Escape");
+    await pagina.locator('.app-notch[data-expandido="false"]').waitFor();
+    assert.equal(await pagina.getByRole("button",{name:"Mi cuenta",exact:true}).evaluate((e)=>e===document.activeElement),true);
+    await notificaciones.click();
+    await pagina.getByRole("button",{name:"Cerrar panel de cuenta",exact:true}).click();
+    await pagina.locator('.app-notch[data-expandido="false"]').waitFor();
+    await pagina.getByPlaceholder("Nombre, correo o teléfono").focus();
+    await pagina.screenshot({path:"docs/header-sidebar-completo.png",animations:"disabled"});
     await pagina.screenshot({ path: "docs/sistema-sidebar-contactos.png" });
 
     await pagina.getByRole("button", { name: "Contraer menú", exact: true }).click();
@@ -81,6 +111,12 @@ test("Navegación curva, filtros reales, pestañas con teclado y menú móvil ac
     await pagina.getByRole("cell", { name: "Andina Studio", exact: true }).first().waitFor();
     assert.equal(await pagina.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
     assert.equal(await pagina.locator(".sidebar").getAttribute("inert"), "");
+    await pagina.getByRole("button",{name:"Notificaciones: 1 tareas vencidas",exact:true}).click();
+    await pagina.locator('.app-notch[data-expandido="true"]').waitFor();
+    await pagina.getByRole("link",{name:/Revisar resultados de noviembre/}).waitFor();
+    assert.ok((await notch.boundingBox()).width <= 366);
+    await pagina.screenshot({path:"docs/header-notch-movil.png",animations:"disabled"});
+    await pagina.getByRole("button",{name:"Cerrar panel de cuenta",exact:true}).click();
     await pagina.getByRole("button", { name: "Abrir menú", exact: true }).click();
     await pagina.locator('.sidebar[data-movil-abierto="true"]').waitFor();
     assert.equal(await pagina.locator(".app-espacio").getAttribute("inert"), "");

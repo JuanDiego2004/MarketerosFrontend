@@ -780,6 +780,9 @@ export default function PantallaCrm({ recurso = "contactos" }) {
       </div>
       {modal && (
         <DialogoCrm formulario={!abandonar && modal !== "eliminar"}
+          aviso={!abandonar && modal === "eliminar" && contactos ? "Esta acción no se puede deshacer." : undefined}
+          variante={!abandonar && modal === "eliminar" && !contactos ? "normal" : undefined}
+          ilustracion={!abandonar && modal === "eliminar" && !contactos ? "seguridad" : undefined}
           titulo={
             abandonar
               ? "¿Descartar los cambios?"
@@ -927,7 +930,7 @@ export default function PantallaCrm({ recurso = "contactos" }) {
           ) : modal === "eliminar" ? (
             <>
               <p>
-                {contactos ? <>Se eliminarán {datos?.nombre}, sus notas, archivos, historial y consentimientos. Esta acción no se puede deshacer.</> : <>Se archivará {datos?.nombre}. Sus campañas, contactos, oportunidades e historial se conservan. Puedes reactivarla desde Editar ficha.</>}
+                {contactos ? <>Se eliminarán {datos?.nombre}, sus notas, archivos, historial y consentimientos.</> : <>Se archivará {datos?.nombre}. Sus campañas, contactos, oportunidades e historial se conservan. Puedes reactivarla desde Editar ficha.</>}
               </p>
               <div className="crm-acciones mt-5">
                 <button

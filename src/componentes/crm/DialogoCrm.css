@@ -1,0 +1,79 @@
+/* El portal al body evita que las reglas de ancho del área CRM alcancen al modal. */
+dialog.crm.crm-dialogo.dialogo-sistema {
+  position: fixed;
+  inset: 0;
+  width: min(560px, calc(100vw - 40px));
+  max-width: min(560px, calc(100vw - 40px));
+  height: fit-content;
+  max-height: calc(100dvh - 48px);
+  margin: auto;
+  padding: 0;
+  overflow: visible;
+  isolation: isolate;
+  border: 1px solid #edf0f5;
+  border-radius: 32px;
+  background: #fff;
+  color: #162236;
+  font-family: var(--font-inter, system-ui, sans-serif);
+  box-shadow: 0 25px 90px #0c18383d, 0 5px 18px #0c183815;
+}
+dialog.dialogo-sistema::backdrop { background:rgb(18 27 45 / .47); backdrop-filter:blur(5px); }
+dialog.dialogo-sistema[open] { animation:dialogo-entrada .22s cubic-bezier(.2,.8,.2,1) both; }
+dialog.dialogo-sistema[open]::backdrop { animation:dialogo-fondo .18s ease both; }
+.dialogo-confirmacion::before { content:""; position:absolute; inset:-7px; border:1px solid #ffffff96; border-radius:37px; transform:rotate(-1.2deg); z-index:-1; pointer-events:none; }
+.dialogo-sistema .dialogo-marco { max-height:inherit; overflow-y:auto; overflow-x:hidden; overscroll-behavior:contain; padding:28px 34px 30px; border-radius:inherit; scrollbar-width:thin; scrollbar-color:#c9d4e5 transparent; }
+.dialogo-sistema .dialogo-cerrar { position:absolute; top:14px; right:14px; z-index:3; display:grid; place-items:center; width:34px; height:34px; padding:0; border:0; border-radius:50%; color:#657286; background:#f4f6f9; cursor:pointer; transition:background .16s, color .16s; }
+.dialogo-sistema .dialogo-cerrar:hover { background:#e9eef5; color:#1e2d45; }
+.dialogo-sistema .dialogo-cerrar:disabled { opacity:.4; cursor:wait; }
+.dialogo-sistema .dialogo-cabecera { margin:0 0 18px; padding:0 5px; text-align:center; }
+.dialogo-sistema .dialogo-ilustracion { display:block; width:240px; max-width:80%; height:auto; margin:0 auto 14px; }
+.dialogo-sistema .dialogo-cabecera h2 { margin:0; color:#142035; font-size:clamp(22px, 2.3vw, 27px); font-weight:650; letter-spacing:-.045em; line-height:1.28; text-wrap:balance; }
+.dialogo-sistema .dialogo-cuerpo { min-width:0; color:#57657a; font-size:16px; line-height:1.7; overflow-wrap:anywhere; }
+.dialogo-confirmacion .dialogo-cuerpo { text-align:center; }
+.dialogo-sistema .dialogo-cuerpo > p { margin:0 0 13px; }
+.dialogo-sistema .dialogo-cuerpo > p:last-child { margin-bottom:0; }
+.dialogo-sistema .dialogo-cuerpo strong { color:#263751; font-weight:600; }
+.dialogo-sistema .dialogo-cuerpo .crm-campo { text-align:left; margin-top:17px; }
+.dialogo-sistema .dialogo-cuerpo :is(input,select,textarea) { max-width:100%; }
+.dialogo-sistema .dialogo-cuerpo .crm-error { text-align:left; font-size:14px; line-height:1.6; margin-top:16px; }
+.dialogo-sistema .dialogo-aviso { display:flex; align-items:flex-start; justify-content:center; gap:9px; margin-top:22px; padding:12px 15px; border:1px solid #dbeafe; border-radius:16px; background:#f0f6ff; color:#386798; font-size:14px; line-height:1.5; }
+.dialogo-sistema .dialogo-aviso > svg { flex-shrink:0; margin-top:1px; }
+.dialogo-sistema .dialogo-aviso > p { margin:0; }
+.dialogo-sistema .dialogo-acciones { display:flex; justify-content:center; align-items:stretch; gap:12px; margin-top:27px; padding-top:0; }
+.dialogo-sistema .dialogo-acciones > .crm-boton { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-width:0; min-height:46px; padding:12px 20px; border:1px solid transparent; border-radius:999px; box-shadow:none; font:550 14px/1.4 var(--font-inter, system-ui, sans-serif); text-align:center; text-decoration:none; cursor:pointer; transition:background .16s, border-color .16s, box-shadow .16s, transform .16s; }
+.dialogo-sistema .dialogo-acciones > .dialogo-secundario { flex:.75; border-color:#d4dce8; background:#fff; color:#4a5a73; }
+.dialogo-sistema .dialogo-acciones > .dialogo-secundario:hover { border-color:#aebfd5; background:#f6f8fb; color:#263b58; }
+.dialogo-sistema .dialogo-acciones > .dialogo-primario { flex:1; border-color:#0756cb; background:#0756cb; color:#fff; box-shadow:0 4px 9px #0756cb1a; }
+.dialogo-sistema .dialogo-acciones > .dialogo-primario:hover { border-color:#0648ac; background:#0648ac; box-shadow:0 5px 12px #0756cb25; }
+.dialogo-sistema .dialogo-acciones > .crm-boton:active:not(:disabled) { transform:translateY(1px); }
+.dialogo-sistema .dialogo-acciones > .crm-boton:disabled { opacity:.5; cursor:not-allowed; box-shadow:none; }
+.dialogo-sistema .dialogo-acciones > .crm-boton > svg { flex-shrink:0; }
+.dialogo-sistema .dialogo-cargando { animation:dialogo-girar 1s linear infinite; }
+.dialogo-sistema :focus-visible { outline:3px solid #9abef2; outline-offset:3px; }
+.dialogo-peligro .dialogo-acciones > .dialogo-primario { background:#c93d59; border-color:#c93d59; box-shadow:0 4px 9px #c93d591a; }
+.dialogo-peligro .dialogo-acciones > .dialogo-primario:hover { background:#b32e49; border-color:#b32e49; }
+.dialogo-peligro .dialogo-aviso { border-color:#f8d8de; background:#fff4f5; color:#a34358; }
+dialog.crm.crm-dialogo.dialogo-detalle { width:min(900px, calc(100vw - 40px)); max-width:min(900px, calc(100vw - 40px)); border-radius:24px; }
+dialog.crm.crm-dialogo.dialogo-amplio { width:min(1100px, calc(100vw - 40px)); max-width:min(1100px, calc(100vw - 40px)); }
+.dialogo-detalle .dialogo-cabecera { padding:4px 38px 18px 0; text-align:left; border-bottom:1px solid #e8edf4; }
+.dialogo-detalle .dialogo-cabecera h2 { font-size:22px; }
+.dialogo-detalle .dialogo-cuerpo { font-size:14px; }
+.dialogo-detalle .dialogo-cuerpo :is(img,video) { display:block; margin:auto; border-radius:14px; }
+@media (max-width:600px) {
+  dialog.crm.crm-dialogo.dialogo-sistema { width:calc(100vw - 32px); max-width:calc(100vw - 32px); max-height:calc(100dvh - 32px); border-radius:27px; }
+  .dialogo-sistema .dialogo-marco { padding:25px 22px 24px; }
+  .dialogo-sistema .dialogo-ilustracion { width:210px; margin-bottom:12px; }
+  .dialogo-sistema .dialogo-cabecera h2 { font-size:23px; }
+  .dialogo-sistema .dialogo-cuerpo { font-size:15px; }
+  .dialogo-sistema .dialogo-acciones > .crm-boton { min-height:46px; padding-inline:15px; }
+  .dialogo-confirmacion::before { inset:-5px; border-radius:31px; transform:rotate(-.8deg); }
+}
+@media (max-width:420px) {
+  .dialogo-sistema .dialogo-acciones { flex-direction:column; gap:9px; margin-top:22px; }
+  .dialogo-sistema .dialogo-acciones > .crm-boton { flex:auto; width:100%; }
+  .dialogo-sistema .dialogo-ilustracion { width:190px; }
+}
+@media (prefers-reduced-motion:reduce) { dialog.dialogo-sistema[open], dialog.dialogo-sistema[open]::backdrop, .dialogo-sistema *, .dialogo-confirmacion::before { animation:none !important; transition:none !important; } }
+@keyframes dialogo-entrada { from { opacity:0; transform:translateY(12px) scale(.97); } to { opacity:1; transform:translateY(0) scale(1); } }
+@keyframes dialogo-fondo { from { opacity:0; } to { opacity:1; } }
+@keyframes dialogo-girar { to { transform:rotate(360deg); } }

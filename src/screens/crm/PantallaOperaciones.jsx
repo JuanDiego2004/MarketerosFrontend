@@ -715,6 +715,7 @@ function OperacionesGenerales({ recurso }) {
       )}
       {confirmacion && (
         <DialogoCrm
+          variante={confirmacion.tipo === "eliminar" ? "peligro" : "normal"}
           titulo={
             confirmacion.tipo === "eliminar"
               ? "Eliminar registro"

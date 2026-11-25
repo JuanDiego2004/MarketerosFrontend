@@ -1,6 +1,8 @@
 # Navegación y controles del sistema
 
-El lateral azul sigue los grupos y rutas de `modulosPorRol`: Dashboard, CRM, Clientes, Marketing, Resultados y Configuración según el rol actual. El elemento seleccionado se une al fondo del área de trabajo con dos curvas. Motion desplaza ese indicador entre las secciones y anima el despliegue de los grupos. El botón de contraer conserva la preferencia en este navegador.
+El lateral oscuro sigue los grupos y rutas de `modulosPorRol`: Dashboard, CRM, Clientes, Marketing, Resultados y Configuración según el rol actual. El marco ocupa toda la pantalla, sin márgenes exteriores. El elemento seleccionado se une al fondo del área de trabajo con dos curvas. Motion desplaza ese indicador entre las secciones y anima el despliegue de los grupos. El botón de contraer conserva la preferencia en este navegador.
+
+La cabecera comparte el fondo oscuro. En su esquina derecha, `HeaderNotch.css` dibuja una zona curva que se ensancha y despliega la cuenta y las tareas vencidas al pasar el cursor. También se abre con foco o clic, funciona en pantallas táctiles y se cierra al salir del área, pulsar fuera, usar el botón de cierre o presionar Escape. El cierre con Escape devuelve el foco al control de cuenta. Las tareas siguen procediendo de la consulta existente de notificaciones.
 
 En móvil se utiliza un panel superpuesto, con fondo atenuado, foco contenido en el menú, cierre con Escape y devolución del foco al botón de apertura. El contenido de fondo queda `inert` mientras está abierto. Al navegar, el panel se cierra. Las animaciones respetan la preferencia de movimiento reducido.
 
