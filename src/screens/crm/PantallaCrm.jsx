@@ -1017,29 +1017,27 @@ export default function PantallaCrm({ recurso = "contactos" }) {
             >
               <label className="crm-campo">
                 Tipo
-                <input
-                  name="tipo"
-                  required
-                  maxLength={60}
-                  placeholder="Ej. comunicaciones comerciales"
-                />
+                <select name="tipo" required defaultValue="">
+                  <option value="" disabled>Selecciona el tipo</option>
+                  <option value="MARKETING">Marketing</option>
+                  <option value="TRANSACCIONAL">Transaccional</option>
+                  <option value="SERVICIO">Servicio</option>
+                </select>
               </label>
               <label className="crm-campo">
                 Canal
-                <input
-                  name="canal"
-                  required
-                  maxLength={60}
-                  placeholder="Ej. correo"
-                />
+                <select name="canal" required defaultValue="">
+                  <option value="" disabled>Selecciona el canal</option>
+                  <option value="EMAIL">Correo electrónico</option>
+                  <option value="WHATSAPP">WhatsApp</option>
+                </select>
               </label>
               <label className="crm-campo crm-ancho">
                 Fecha y hora en tu zona local
                 <input name="fecha" type="datetime-local" required />
               </label>
               <p className="crm-ayuda crm-ancho">
-                Registra únicamente una autorización que el contacto haya
-                otorgado.
+                Registra únicamente una autorización que el contacto haya otorgado. Para campañas de correo, selecciona Marketing y Correo electrónico.
               </p>
               <button
                 disabled={ocupado}
