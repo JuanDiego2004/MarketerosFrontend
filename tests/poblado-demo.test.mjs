@@ -60,5 +60,28 @@ test("Carga DEMO: registros relacionados, repetición sin duplicados, aislamient
   assert.equal((await db.query("select count(*)::int n from crm_anuncio a join crm_cuenta_publicitaria p on p.id=a.cuenta_id join crm_acuerdo c on c.id=a.contrato_id join campana ca on ca.id_campana=a.campana_id join crm_cuenta e on e.id=c.empresa_id where p.empresa_id<>c.empresa_id or ca.id_cliente<>e.cliente_id or a.estado<>'BORRADOR' or a.programado_en is not null")).rows[0].n,0);
   assert.equal((await db.query("select count(*)::int n from indicador_kpi where roi is not null")).rows[0].n,0);
   assert.equal((await db.query("select count(*)::int n from crm_anuncio_metrica where conversiones>clics or clics>impresiones or inversion<0")).rows[0].n,0);
+  const metricasAntes=(await db.query("select jsonb_agg(m order by anuncio_id,fecha,pais) datos from crm_anuncio_metrica m")).rows[0].datos;
+  const mapaAntes=(await db.query("select jsonb_agg(m order by metrica_id,ubicacion_id) datos from marketing_resultado_geografico m")).rows[0].datos;
+  const usuarioPrevio=(await db.query("select * from usuario where id_usuario=1")).rows;
+  const normalizar=await readFile(new URL("scripts/normalizar-registros-marketing.sql",backend),"utf8");
+  await db.exec("begin");await db.exec(normalizar);await db.exec("commit");
+  assert.equal((await db.query("select nombre from cliente where correo='contacto@andinastudio.example.invalid'")).rows[0].nombre,"Andina Studio");
+  assert.equal((await db.query("select count(*)::int n from usuario where correo like '%demo%' or nombres like 'DEMO10%'")).rows[0].n,0);
+  assert.equal((await db.query("select count(*)::int n from campana where nombre like 'DEMO10%' or objetivo like '%Demostración%'")).rows[0].n,0);
+  assert.equal((await db.query("select count(*)::int n from crm_etiqueta where nombre like 'DEMO10%'")).rows[0].n,0);
+  assert.equal((await db.query("select count(*)::int n from crm_contacto_etiqueta")).rows[0].n,10);
+  assert.equal((await db.query("select count(*)::int n from crm_segmento s join crm_contacto c on c.etiquetas=s.etiqueta and c.origen=s.origen")).rows[0].n,10);
+  assert.deepEqual((await db.query("select jsonb_agg(m order by anuncio_id,fecha,pais) datos from crm_anuncio_metrica m")).rows[0].datos,metricasAntes);
+  assert.deepEqual((await db.query("select jsonb_agg(m order by metrica_id,ubicacion_id) datos from marketing_resultado_geografico m")).rows[0].datos,mapaAntes);
+  assert.deepEqual((await db.query("select * from usuario where id_usuario=1")).rows,usuarioPrevio);
+  const versiones=(await db.query("select jsonb_agg(t order by id) datos from crm_trabajo_servicio t")).rows[0].datos;
+  await db.exec("begin");await db.exec(normalizar);await db.exec("commit");
+  assert.deepEqual((await db.query("select jsonb_agg(t order by id) datos from crm_trabajo_servicio t")).rows[0].datos,versiones);
+  const tercera=await poblar(true);
+  assert.deepEqual(tercera,primera);
+  assert.equal((await db.query("select count(*)::int n from cliente")).rows[0].n,11);
+  assert.equal((await db.query("select count(*)::int n from usuario where id_usuario<>1 and (estado<>'INACTIVO' or id_supabase is not null or password_hash is not null)")).rows[0].n,0);
+  assert.equal((await db.query("select count(*)::int n from campana where nombre like 'DEMO10%'")).rows[0].n,0);
+  assert.deepEqual(await catalogos(),antes);
  } finally {await db.close();}
 });
