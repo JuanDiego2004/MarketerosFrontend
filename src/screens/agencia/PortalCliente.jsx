@@ -51,8 +51,8 @@ export default function PortalCliente() {
     if (vista === "materiales") setVista("contrato");
   }
 
-  return <div className="cliente-portal">
-    <main className="crm portal-analitica dashboard-inmersivo cliente-experiencia">
+  return <div className={`cliente-portal ${analitica ? "cliente-mapa-inmersivo" : ""}`}>
+    <main className={`crm portal-analitica dashboard-inmersivo cliente-experiencia ${analitica ? "mapa-pantalla-completa" : ""}`}>
       <header className="cliente-marco-cabecera">
         <div className="cliente-titulo">
           <button type="button" className="cliente-salir" aria-label="Cerrar sesión" title="Cerrar sesión" onClick={() => { cerrarSesion(); navegar("/login", { replace:true }); }}><X size={20} /></button>
@@ -62,7 +62,7 @@ export default function PortalCliente() {
       </header>
 
       <div className="cliente-superficie">
-        <section className="cliente-contexto" aria-label="Contexto de mi empresa">
+        <section hidden={analitica} className="cliente-contexto" aria-label="Contexto de mi empresa">
           <div className="cliente-perfil">
             <span className="cliente-monograma" aria-hidden="true">{iniciales}</span>
             <div><small>Tu espacio de marketing</small><strong>{usuario?.nombres || empresa}</strong><span><ShieldCheck size={13} aria-hidden="true" /> Acceso privado</span></div>
@@ -77,8 +77,8 @@ export default function PortalCliente() {
 
         <div className="cliente-marca-demo"><span><Sparkles size={14} aria-hidden="true" /> Datos simulados · Mockaroo</span><p>{analitica ? "El rendimiento de tus campañas, en perspectiva." : "Cada entrega, material e informe, en un mismo lugar."}</p></div>
 
-        <div hidden={!analitica}>
-          <AnaliticaCliente token={token} portal={datos} contrato={id} seleccionarContrato={elegirContrato} alCargarContexto={setDatos} revision={revision} actualizar={() => setRevision((v) => v+1)} contratoEnCabecera vista={actual} />
+        <div className="cliente-vista-analitica" hidden={!analitica}>
+          <AnaliticaCliente token={token} portal={datos} contrato={id} seleccionarContrato={elegirContrato} alCargarContexto={setDatos} revision={revision} actualizar={() => setRevision((v) => v+1)} contratoEnCabecera={!analitica} vista={actual} />
         </div>
 
         <section className="portal-entregas cliente-servicios" aria-label="Servicios y entregas de mi contrato" hidden={analitica}>
@@ -86,7 +86,7 @@ export default function PortalCliente() {
           {contrato ? <EntregasContratoCliente key={`${id}-${revision}`} contrato={contrato} vista={actual} alCargar={recibirDetalle} /> : <div className="cliente-sin-contrato"><FileText size={28} strokeWidth={1.4} /><h2>Selecciona uno de tus contratos</h2><p>Usa el selector superior para consultar sus entregas e informes. Solo aparecerán las funciones incluidas en el servicio.</p></div>}
         </section>
 
-        <footer className="cliente-periodo"><span className="cliente-periodo-icono"><CalendarDays size={18} aria-hidden="true" /></span><div><small>{contrato ? "Vigencia del contrato" : "Tu espacio de trabajo"}</small><strong>{contrato ? `${fecha(contrato.desde)} — ${fecha(contrato.hasta)}` : "Resultados · Campañas · Servicios"}</strong></div><span className="cliente-periodo-privado"><ShieldCheck size={15} /> Solo tu empresa</span></footer>
+        <footer hidden={analitica} className="cliente-periodo"><span className="cliente-periodo-icono"><CalendarDays size={18} aria-hidden="true" /></span><div><small>{contrato ? "Vigencia del contrato" : "Tu espacio de trabajo"}</small><strong>{contrato ? `${fecha(contrato.desde)} — ${fecha(contrato.hasta)}` : "Resultados · Campañas · Servicios"}</strong></div><span className="cliente-periodo-privado"><ShieldCheck size={15} /> Solo tu empresa</span></footer>
       </div>
     </main>
   </div>;

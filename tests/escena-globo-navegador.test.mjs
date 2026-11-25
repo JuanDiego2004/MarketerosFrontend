@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { crearDemostracion } from "../src/componentes/dashboard/demostracionMarketing.js";
 
-const servidor = process.env.CRM_UI_URL || "http://127.0.0.1:5187";
+const servidor = process.env.CRM_UI_URL || "http://127.0.0.1:5188";
 const fecha = new Date().toISOString().slice(0, 10);
 const contrato = {
   id: 1,
@@ -84,7 +84,7 @@ const registros = [
 
 for (const rol of ["Cliente", "Administrador"])
   test(
-    `Escena ${rol}: ancho completo, giro, flechas, zoom y paneles móviles`,
+    `Mapa ${rol}: pantalla completa, controles flotantes, filtros y zoom`,
     { timeout: 300000 },
     async () => {
       const browser = await chromium.launch({
@@ -197,6 +197,19 @@ for (const rol of ["Cliente", "Administrador"])
           Math.abs(contenedor.width - canvas.width) < 4,
           "El canvas incluye el espacio detrás de ambas columnas",
         );
+        const ventana = page.viewportSize();
+        assert.equal(Math.round(contenedor.y),0,"No hay cabecera ni filtros quitando altura al mapa");
+        assert.equal(Math.round(contenedor.height),ventana.height);
+        assert.equal(Math.round(canvas.height),ventana.height);
+        assert.equal(Math.round(canvas.x+canvas.width),ventana.width);
+        assert.equal(await page.locator(".marketing-cabecera").count(),0);
+        const filtros = page.getByRole("button",{name:"Filtros",exact:true});
+        assert.equal(await filtros.getAttribute("aria-expanded"),"false");
+        await filtros.click();
+        await page.getByRole("region",{name:"Filtros del mapa",exact:true}).waitFor();
+        assert.equal(await page.getByLabel("Desde",{exact:true}).isVisible(),true);
+        await page.getByRole("button",{name:"Ver resultados",exact:true}).click();
+        assert.equal(await filtros.getAttribute("aria-expanded"),"false");
         for (const panel of await escena.locator(".globo-panel").all()) {
           const caja = await panel.boundingBox();
           assert.ok(
@@ -284,10 +297,6 @@ for (const rol of ["Cliente", "Administrador"])
         const pais = await senal.evaluate((e) => e.parentElement.dataset.pais);
         await senal.click();
         if (rol === "Cliente") {
-          await page.waitForFunction(
-            (p) => document.querySelector('[aria-label="País"]').value === p,
-            pais,
-          );
           await page.locator('.portal-resultados[aria-busy="false"]').waitFor();
           assert.equal(filtroPais, pais);
         } else await page.locator(".marketing-grupo").waitFor();
@@ -301,12 +310,20 @@ for (const rol of ["Cliente", "Administrador"])
         assert.equal(await globo.getAttribute("data-girando"), "false");
         await page.waitForTimeout(1400);
         const nombre = rol === "Cliente" ? "cliente" : "admin";
-        await escena.screenshot({
-          path: `docs/dashboard-${nombre}-inmersivo.png`,
+        await page.screenshot({
+          path: `docs/mapa-${nombre}-pantalla.png`,
         });
-        if (rol === "Cliente") await page.locator(".cliente-experiencia").screenshot({path:"docs/cliente-globo-estilo.png"});
+        if (rol === "Cliente") await page.locator(".cliente-experiencia").screenshot({path:"docs/mapa-cliente-portal.png"});
+        await page.getByRole("button",{name:"Ampliar mapa a pantalla completa",exact:true}).click();
+        await page.waitForFunction(() => Boolean(document.fullscreenElement));
+        const ampliado=await page.locator(".mapa-pantalla-completa").boundingBox();
+        assert.equal(Math.round(ampliado.width),page.viewportSize().width);
+        assert.equal(Math.round(ampliado.height),page.viewportSize().height);
+        await page.getByRole("button",{name:"Salir de pantalla completa",exact:true}).click();
+        await page.waitForFunction(() => !document.fullscreenElement);
         console.log(`${rol}: selección comprobada`);
         await page.setViewportSize({ width: 390, height: 844 });
+        await page.waitForFunction(() => Math.round(document.querySelector(".escena-globo").getBoundingClientRect().height) === 844);
         await escena.evaluate((e) =>
           e.scrollIntoView({ block: "center", behavior: "instant" }),
         );
@@ -332,8 +349,8 @@ for (const rol of ["Cliente", "Administrador"])
         assert.equal(await actividad.getAttribute("aria-expanded"), "true");
         await actividad.click();
         await page.waitForTimeout(1300);
-        await escena.screenshot({
-          path: `docs/dashboard-${nombre}-inmersivo-movil.png`,
+        await page.screenshot({
+          path: `docs/mapa-${nombre}-pantalla-movil.png`,
         });
         await page.emulateMedia({ reducedMotion: "reduce" });
         await page.waitForFunction(

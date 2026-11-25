@@ -83,12 +83,14 @@ export default function GloboInteractivo({
   useEffect(() => {
     if (!listo || !globo.current) return;
     const enfocado = latFoco != null && lngFoco != null;
+    // Sincroniza el estado de reproducción con el enfoque externo de la escena 3D.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (enfocado || movimientoReducido) setGirando(false);
     globo.current.pointOfView(
       {
         lat: enfocado ? latFoco : 8,
         lng: enfocado ? lngFoco : -55,
-        altitude: enfocado ? (movil ? 2.1 : 1.1) : movil ? 2.8 : 1.45,
+        altitude: enfocado ? (movil ? 1.75 : 0.85) : movil ? 2.05 : 1.12,
       },
       0,
     );
@@ -115,7 +117,7 @@ export default function GloboInteractivo({
       const origen = elemento.getBoundingClientRect();
       zonasPaneles.current = [
         ...escenario.querySelectorAll(
-          ".globo-panel-contenido, .globo-panel-toggle, .globo-controles, .portal-mapa-cabecera, .marketing-mapa-titulo, .portal-pais-detalle, .portal-leyenda",
+          ".globo-panel-contenido, .globo-panel-toggle, .globo-controles, .portal-mapa-cabecera, .marketing-mapa-titulo, .portal-pais-detalle, .portal-leyenda, .mapa-herramientas, .portal-barra, .cliente-marco-cabecera, .mapa-detalles, .mapa-filtro-panel",
         ),
       ]
         .map((e) => e.getBoundingClientRect())
@@ -322,7 +324,7 @@ export default function GloboInteractivo({
     [modoPaises, regiones, marcadores, regionSeleccionada, seleccionado, movil],
   );
 
-  function seleccionarPunto(punto) {
+  const seleccionarPunto = useCallback((punto) => {
     setGirando(false);
     if (punto.cluster) {
       const nivel = Math.min(
@@ -339,7 +341,7 @@ export default function GloboInteractivo({
       );
     }
     alSeleccionar?.(punto);
-  }
+  }, [alSeleccionar, indice]);
   const crearSenal = useCallback(
     (senal) => {
       const elemento = document.createElement("div");
@@ -389,7 +391,7 @@ export default function GloboInteractivo({
       elemento.append(svg, boton);
       return elemento;
     },
-    [alSeleccionarRegion, alSeleccionar, indice, movimientoReducido],
+    [alSeleccionarRegion, seleccionarPunto],
   );
   function etiquetaPunto(punto) {
     const texto = document.createElement("div");
@@ -415,7 +417,7 @@ export default function GloboInteractivo({
     alRestablecer?.();
     globo.current.resumeAnimation();
     globo.current.pointOfView(
-      { lat: 8, lng: -55, altitude: movil ? 2.8 : 1.45 },
+      { lat: 8, lng: -55, altitude: movil ? 2.05 : 1.12 },
       0,
     );
     globo.current.controls().update();

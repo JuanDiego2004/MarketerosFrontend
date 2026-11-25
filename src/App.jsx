@@ -5,6 +5,7 @@ import "./App.css";
 import "./componentes/ui/SistemaUI.css";
 import "./componentes/portal/PortalExperiencia.css";
 import "./componentes/crm/DialogoCrm.css";
+import "./componentes/dashboard/MapaPantallaCompleta.css";
 
 export default function App() {
   return (

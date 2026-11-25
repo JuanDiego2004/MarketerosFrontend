@@ -3,12 +3,13 @@ import {
   Download,
   Globe2,
   RefreshCw,
+  RotateCcw,
   Search,
-  SlidersHorizontal,
   X,
 } from "lucide-react";
 import GloboCampanas from "../dashboard/GloboCampanas";
 import PanelGlobo from "../dashboard/PanelGlobo";
+import { FiltrosMapa, PantallaCompletaMapa } from "../dashboard/ControlesMapa";
 import GraficoCliente from "./GraficoCliente";
 import TablaResultadosCliente from "./TablaResultadosCliente";
 import MapaPaisesAlternativo from "./MapaPaisesAlternativo";
@@ -51,6 +52,7 @@ export default function AnaliticaCliente({
   vista = "resultados",
 }) {
   const [locales, setLocales] = useState(filtrosIniciales);
+  const [pagina, setPagina] = useState(0);
   const contratoAnterior = useRef(contrato);
   useEffect(() => {
     if (contratoAnterior.current !== contrato) {
@@ -69,8 +71,7 @@ export default function AnaliticaCliente({
   useEffect(() => () => controlExportacion.current?.abort(), [token]);
   const [errorExportar, setErrorExportar] = useState("");
   const [orden, setOrden] = useState({ campo: "impresiones", direccion: -1 });
-  const [pagina, setPagina] = useState(0);
-  const [verFiltros, setVerFiltros] = useState(false);
+
   const filtros = { ...locales, contrato };
   const { metrica, ...consulta } = filtros;
   const clave = JSON.stringify(consulta);
@@ -236,6 +237,7 @@ export default function AnaliticaCliente({
   const bloqueado = cargando || Boolean(error) || !rangoValido;
   return (
     <>
+      <PantallaCompletaMapa/>
       <section className="portal-barra" aria-label="Filtros de resultados">
         <div className="portal-barra-superior">
           <div className="portal-busqueda">
@@ -248,50 +250,7 @@ export default function AnaliticaCliente({
             />
           </div>
           <div className="portal-botones">
-            <button
-              className="crm-boton portal-toggle"
-              aria-expanded={verFiltros}
-              aria-controls="portal-filtros"
-              onClick={() => setVerFiltros((v) => !v)}
-            >
-              <SlidersHorizontal size={16} />
-              Filtros
-            </button>
-            <button className="crm-boton" onClick={limpiar}>
-              Limpiar filtros
-            </button>
-            <button
-              className="crm-boton portal-refrescar"
-              aria-label="Actualizar resultados"
-              onClick={() => {
-                setError("");
-                actualizar();
-              }}
-            >
-              <RefreshCw size={16} />
-            </button>
-            <button
-              className="crm-boton"
-              disabled={bloqueado || exportando || sinDatos}
-              onClick={() => exportar("csv")}
-            >
-              <Download size={16} />
-              CSV
-            </button>
-            <button
-              className="crm-boton"
-              disabled={bloqueado || exportando || sinDatos}
-              onClick={() => exportar("pdf")}
-            >
-              <Download size={16} />
-              PDF
-            </button>
-          </div>
-        </div>
-        <div
-          className={`portal-filtros ${verFiltros ? "portal-filtros-abiertos" : ""}`}
-          id="portal-filtros"
-        >
+            <FiltrosMapa resumen={`${filtros.desde} — ${filtros.hasta}`} activos={[contrato,filtros.campana,filtros.pais,filtros.plataforma,filtros.moneda].filter(Boolean).length}>
           {!contratoEnCabecera && <Campo titulo="Contrato">
             <select
               aria-label="Mi contrato"
@@ -376,7 +335,40 @@ export default function AnaliticaCliente({
               ))}
             </select>
           </Campo>
+            </FiltrosMapa>
+            <button className="crm-boton" onClick={limpiar}>
+              <RotateCcw size={15} aria-hidden="true" />
+              Limpiar filtros
+            </button>
+            <button
+              className="crm-boton portal-refrescar"
+              aria-label="Actualizar resultados"
+              onClick={() => {
+                setError("");
+                actualizar();
+              }}
+            >
+              <RefreshCw size={16} />
+            </button>
+            <button
+              className="crm-boton"
+              disabled={bloqueado || exportando || sinDatos}
+              onClick={() => exportar("csv")}
+            >
+              <Download size={16} />
+              CSV
+            </button>
+            <button
+              className="crm-boton"
+              disabled={bloqueado || exportando || sinDatos}
+              onClick={() => exportar("pdf")}
+            >
+              <Download size={16} />
+              PDF
+            </button>
+          </div>
         </div>
+
       </section>
       {!rangoValido && (
         <p className="crm-error" role="alert">
@@ -430,7 +422,7 @@ export default function AnaliticaCliente({
               </div>
             </div>
           )}
-          <div className="portal-panel-principal escena-globo escena-globo-cliente" hidden={vista === "campanas"}>
+          <div className="portal-panel-principal escena-globo escena-globo-cliente">
             <PanelGlobo
               titulo="Indicadores"
               className="portal-kpis"
@@ -614,6 +606,7 @@ export default function AnaliticaCliente({
               </section>
             </PanelGlobo>
           </div>
+          <details className="mapa-detalles" key={vista} open={vista === "campanas" ? true : undefined}><summary>Resultados por país y campaña</summary><div className="mapa-detalles-contenido">
           <TablaResultadosCliente
             filas={filas}
             orden={orden}
@@ -628,6 +621,7 @@ export default function AnaliticaCliente({
             alcance y el ROAS/ROI requieren datos que no están disponibles en
             estos registros.
           </p>
+          </div></details>
         </div>
       )}
     </>

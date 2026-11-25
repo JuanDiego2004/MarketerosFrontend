@@ -15,6 +15,7 @@ import { useAuth } from "../../contexto/ContextoAuth";
 import { obtenerMarketingDashboard } from "../../servicios/servicioAdministrador";
 import { GRUPOS_ROL, obtenerGrupoRol } from "../../utils/roles";
 import GloboCampanas from "./GloboCampanas";
+import { FiltrosMapa, PantallaCompletaMapa } from "./ControlesMapa";
 import PanelGlobo from "./PanelGlobo";
 import EditorGeografia from "./EditorGeografia";
 import ResumenCrmDashboard from "./ResumenCrmDashboard";
@@ -147,7 +148,7 @@ export default function DashboardMarketing({ apiBase = "/api/admin" }) {
     [filtros, setFiltros] = useState(FILTROS_INICIALES);
   const [seleccionado, setSeleccionado] = useState(null),
     [grupo, setGrupo] = useState(null);
-  const [vista, setVista] = useState("COBERTURA"),
+  const [vista, setVista] = useState("RESULTADOS"),
     [ubicacion, setUbicacion] = useState("");
   const [reinicio, setReinicio] = useState(0),
     [editor, setEditor] = useState(false);
@@ -280,6 +281,11 @@ export default function DashboardMarketing({ apiBase = "/api/admin" }) {
     setFiltros((prev) => ({ ...prev, [nombre]: valor }));
     limpiarSeleccion();
   }
+  function alternarDemostracion() {
+    setDemo(!demo);
+    limpiarSeleccion();
+    if (demo) setCargando(true);
+  }
   function seleccionarCampana(id) {
     setSeleccionado(id);
     setUbicacion("");
@@ -298,45 +304,21 @@ export default function DashboardMarketing({ apiBase = "/api/admin" }) {
   const listo = datos && rangoValido && (demo || !error);
 
   return (
-    <main className="marketing-dashboard dashboard-inmersivo">
-      <header className="marketing-cabecera">
-        <div>
-          <span className="marketing-eyebrow">Marketing intelligence</span>
-          <h1>Una visión global.</h1>
-          <p>Explora tus campañas y descubre dónde conectan.</p>
-        </div>
-        <div className="marketing-cabecera-acciones">
-          <button
-            className={`marketing-boton ${demo ? "marketing-boton-activo" : ""}`}
-            aria-pressed={demo}
-            onClick={() => {
-              setDemo(!demo);
-              limpiarSeleccion();
-              if (demo) setCargando(true);
-            }}
-          >
-            {demo ? "Volver a datos reales" : "Explorar demostración"}
-          </button>
-          <button
-            className="marketing-boton marketing-boton-icono"
-            aria-label="Actualizar datos"
-            disabled={cargando && !demo}
-            onClick={() => {
-              setCargando(true);
-              setRevision((v) => v + 1);
-            }}
-          >
-            <RefreshCw size={16} />
-          </button>
-        </div>
-      </header>
-      {demo && (
-        <div className="marketing-aviso" role="status">
-          Modo demostración · Campañas y resultados ficticios para explorar el
-          Dashboard.
-        </div>
-      )}
-      <section className="marketing-filtros" aria-label="Filtros del Dashboard">
+    <main className="marketing-dashboard dashboard-inmersivo escena-globo escena-globo-admin mapa-pantalla-completa">
+              <GloboCampanas
+                temaClaro
+                alRestablecer={() => {
+                  limpiarSeleccion();
+                  setReinicio((v) => v + 1);
+                }}
+                puntos={puntos}
+                seleccionado={campana?.idCampana}
+                alSeleccionar={seleccionarPunto}
+                reinicio={reinicio}
+              />
+      <h1 className="mapa-solo-lectores">Dashboard de marketing</h1>
+      <div className="mapa-herramientas" aria-label="Explorar campañas">
+        <span className="mapa-identidad"><Globe2 size={17}/> Explorar</span>
         <label className="marketing-busqueda">
           <Search size={16} />
           <input
@@ -346,6 +328,8 @@ export default function DashboardMarketing({ apiBase = "/api/admin" }) {
             onChange={(e) => cambiarFiltro("busqueda", e.target.value)}
           />
         </label>
+        <FiltrosMapa resumen={`${desde} — ${hasta}`} activos={Object.values(filtros).filter(Boolean).length}>
+
         <label className="marketing-campo">
           Desde
           <input
@@ -418,7 +402,35 @@ export default function DashboardMarketing({ apiBase = "/api/admin" }) {
             ))}
           </select>
         </label>
-      </section>
+
+          <button className="mapa-limpiar" onClick={() => {setFiltros(FILTROS_INICIALES);limpiarSeleccion();}}>Limpiar filtros</button>
+          <button className="mapa-limpiar" onClick={alternarDemostracion}>{demo ? "Volver a datos reales" : "Explorar demostración"}</button>
+        </FiltrosMapa>
+        <div className="marketing-cabecera-acciones">
+          <button
+            className={`marketing-boton ${demo ? "marketing-boton-activo" : ""}`}
+            aria-pressed={demo}
+            onClick={alternarDemostracion}
+          >
+            {demo ? "Volver a datos reales" : "Explorar demostración"}
+          </button>
+          <button
+            className="marketing-boton marketing-boton-icono"
+            aria-label="Actualizar datos"
+            disabled={cargando && !demo}
+            onClick={() => {
+              setCargando(true);
+              setRevision((v) => v + 1);
+            }}
+          >
+            <RefreshCw size={16} />
+          </button>
+        </div>
+
+      </div>
+      <PantallaCompletaMapa/>
+      {demo && <p className="mapa-modo-demo" role="status">Modo demostración · Datos ficticios</p>}
+      <div className="mapa-avisos" aria-live="polite">
       {!rangoValido && (
         <p className="marketing-error" role="alert">
           Selecciona fechas válidas con un máximo de 367 días.
@@ -443,6 +455,7 @@ export default function DashboardMarketing({ apiBase = "/api/admin" }) {
           Consultando tus campañas…
         </p>
       )}
+      </div>
       {listo && (
         <div
           className="marketing-contenido"
@@ -467,7 +480,7 @@ export default function DashboardMarketing({ apiBase = "/api/admin" }) {
               </button>
             )}
           </div>
-          <section className="marketing-escenario escena-globo escena-globo-admin">
+          <section className="marketing-escenario">
             <div className="marketing-mapa">
               <div className="marketing-mapa-titulo">
                 <span className="marketing-eyebrow">
@@ -484,17 +497,7 @@ export default function DashboardMarketing({ apiBase = "/api/admin" }) {
                   <RotateCcw size={15} />
                 </button>
               </div>
-              <GloboCampanas
-                temaClaro
-                alRestablecer={() => {
-                  limpiarSeleccion();
-                  setReinicio((v) => v + 1);
-                }}
-                puntos={puntos}
-                seleccionado={campana?.idCampana}
-                alSeleccionar={seleccionarPunto}
-                reinicio={reinicio}
-              />
+
               <PanelGlobo
                 titulo="Indicadores"
                 className="marketing-kpis-flotantes"
@@ -678,6 +681,7 @@ export default function DashboardMarketing({ apiBase = "/api/admin" }) {
               </aside>
             </PanelGlobo>
           </section>
+          <details className="mapa-detalles"><summary>Detalle y resultados <ChevronRight size={15}/></summary><div className="mapa-detalles-contenido">
           {campana && (
             <section
               className="marketing-panel marketing-detalle"
@@ -817,6 +821,7 @@ export default function DashboardMarketing({ apiBase = "/api/admin" }) {
               Consultar atribución y embudo CRM <ArrowUpRight size={13} />
             </Link>
           </footer>
+          </div></details>
           {editor && campana && (
             <EditorGeografia
               campana={campana}
